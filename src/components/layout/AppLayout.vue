@@ -122,7 +122,8 @@ function toggleIssues() {
 .app-version { font-size: 11px; color: #999; font-family: monospace; flex-shrink: 0; }
 .app-main { display: flex; flex: 1; overflow: hidden; }
 .editor-pane, .preview-pane { overflow: auto; min-width: 200px; }
-.toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2500; display: flex; flex-direction: column; gap: 8px; }
+.toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2500; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast-container > * { pointer-events: auto; }
 .toast-item { padding: 10px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, .15); animation: toast-in .25s ease-out; }
 .toast-item.success { background: #e8f5e9; color: #2e7d32; }
 .toast-item.error { background: #ffebee; color: #c62828; }

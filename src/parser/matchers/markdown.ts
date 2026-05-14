@@ -18,8 +18,20 @@ export function matchMarkdownHeading(token: Token): DocumentNode | null {
   return {
     id: uid(),
     type: typeMap[level],
-    text: m[2],
+    text: stripMarkdownInline(m[2]),
     lineNumber: token.lineNumber,
     level,
   }
 }
+
+/** 清除 Markdown 行内格式：加粗、斜体、删除线、代码 */
+export function stripMarkdownInline(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    .replace(/~~(.+?)~~/g, '$1')
+    .replace(/`(.+?)`/g, '$1')
+}
+

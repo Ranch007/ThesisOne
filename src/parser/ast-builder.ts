@@ -19,7 +19,7 @@ import { matchRefTitle, matchRefItem } from './matchers/reference'
 import { matchTOC } from './matchers/toc'
 import { matchAckTitle, collectAckContent } from './matchers/ack'
 import { matchAppendixTitle, collectAppendixContent } from './matchers/appendix'
-import { matchMarkdownHeading } from './matchers/markdown'
+import { matchMarkdownHeading, stripMarkdownInline } from './matchers/markdown'
 
 /**
  * 解析器状态枚举
@@ -274,7 +274,7 @@ export function parseThesis(rawText: string, options: ParseOptions = {}): Thesis
     ast.body.push({
       id: uid(),
       type: NodeType.PARAGRAPH,
-      text,
+      text: options.isMarkdown ? stripMarkdownInline(text) : text,
       lineNumber: token.lineNumber,
     })
   }
