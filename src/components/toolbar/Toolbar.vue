@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useValidationStore } from '@/stores/validation'
+import { storeToRefs } from 'pinia'
 import ImportButton from './ImportButton.vue'
 import ExportButton from './ExportButton.vue'
 import DisciplineSwitch from './DisciplineSwitch.vue'
@@ -9,6 +11,9 @@ const emit = defineEmits<{
   'open-settings': []
   'toggle-issues': []
 }>()
+
+const valStore = useValidationStore()
+const { errorCount, warningCount } = storeToRefs(valStore)
 </script>
 
 <template>
@@ -18,7 +23,11 @@ const emit = defineEmits<{
     <div class="toolbar-separator" />
     <DisciplineSwitch />
     <SettingsButton @click="emit('open-settings')" />
-    <ValidateButton @click="emit('toggle-issues')" />
+    <ValidateButton
+      :error-count="errorCount"
+      :warning-count="warningCount"
+      @click="emit('toggle-issues')"
+    />
   </nav>
 </template>
 
