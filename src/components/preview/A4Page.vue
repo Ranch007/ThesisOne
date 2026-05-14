@@ -22,7 +22,8 @@ function getNodeClass(node: { type: string; level?: number }): string {
   if (t === NodeType.TOC_TITLE) return 'section-title'
   if (t === NodeType.TOC_ITEM) return `toc-item toc-l${node.level ?? 1}`
   if (t === NodeType.REF_TITLE || t === NodeType.ACK_TITLE || t === NodeType.APPENDIX_TITLE) return 'section-title'
-  if (t === NodeType.PARAGRAPH || t === NodeType.ABSTRACT_ZH_CONTENT || t === NodeType.ABSTRACT_EN_CONTENT || t === NodeType.ACK_CONTENT || t === NodeType.APPENDIX_CONTENT || t === NodeType.REF_ITEM) return 'body-text'
+  if (t === NodeType.REF_ITEM) return 'body-text ref-item'
+  if (t === NodeType.PARAGRAPH || t === NodeType.ABSTRACT_ZH_CONTENT || t === NodeType.ABSTRACT_EN_CONTENT || t === NodeType.ACK_CONTENT || t === NodeType.APPENDIX_CONTENT) return 'body-text'
   return 'body-text'
 }
 </script>
@@ -141,6 +142,13 @@ function getNodeClass(node: { type: string; level?: number }): string {
   text-align: center;
   margin: 16px 0 12px;
   text-indent: 0;
+}
+
+/* 参考文献条目：5号字 */
+.a4-content .ref-item {
+  font-size: 10.5pt;
+  padding-left: 2em;
+  text-indent: -2em;
 }
 
 .a4-content .toc-item {
