@@ -13,6 +13,7 @@ import { useToast } from '@/composables/useToast'
 import { useKeyboard } from '@/composables/useKeyboard'
 import { useFileExport } from '@/composables/useFileExport'
 import { useValidationStore } from '@/stores/validation'
+import { useDocumentStore } from '@/stores/document'
 import { storeToRefs } from 'pinia'
 
 const { toasts, dismiss } = useToast()
@@ -36,6 +37,18 @@ useKeyboard([
   { key: 's', ctrl: true, handler: () => doExport() },
   { key: 'i', ctrl: true, handler: () => toggleIssues() },
 ])
+
+const docStore = useDocumentStore()
+
+// 论文题目更新时同步浏览器标签页标题
+watch(
+  () => docStore.ast?.frontMatter.title?.text,
+  (title) => {
+    document.title = title
+      ? `${title} — 江大毕业论文排版工具`
+      : '江大毕业论文排版工具'
+  },
+)
 
 // 检测到错误时自动弹出问题面板
 watch(errorCount, (count, prev) => {
