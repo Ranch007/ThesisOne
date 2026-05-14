@@ -13,8 +13,8 @@ export interface FigureNumber {
 /** 匹配 "图1-1" / "图 1-1" / "表2-3" / "表 2-3" */
 const FIGURE_TABLE_RE = /^(图|表)\s*(\d+)\s*[-.]\s*(\d+)/
 
-/** 匹配公式编号 "(1-1)"（行中任意位置） */
-const FORMULA_RE = /（(\d+)\s*[-.]\s*(\d+)）/
+/** 匹配公式编号 "(1-1)" 或 "（1-1）"（行中任意位置，兼容半角/全角括号） */
+const FORMULA_RE = /[（(](\d+)\s*[-.]\s*(\d+)[）)]/
 
 /** 解析图/表编号 */
 export function parseFigureNumber(text: string): FigureNumber | null {
