@@ -5,3 +5,12 @@ dist/
 *.local
 .DS_Store
 Thumbs.db
+PRD*.md
+TECH_DESIGN.md
+需求拆解文档.md
+江大论文格式核心规则.md
+*.doc
+plan-mode/
+docs/
+.claude/
+准备工作/
