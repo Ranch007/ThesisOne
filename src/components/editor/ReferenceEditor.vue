@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useReferencesStore } from '@/stores/references'
 import { ReferenceType } from '@/types/reference'
+import type { ReferenceItem } from '@/types/reference'
 import { storeToRefs } from 'pinia'
 import { useToast } from '@/composables/useToast'
+import { formatGB7714 } from '@/references/gbt7714'
 
 const refStore = useReferencesStore()
 const toast = useToast()
@@ -11,6 +13,27 @@ const { items } = storeToRefs(refStore)
 
 const showForm = ref(false)
 const formErrors = ref<string[]>([])
+
+// GB/T 7714 实时预览
+const formattedPreview = computed(() => {
+  const authors = form.value.authors.split(/[,，、]/).map((s) => s.trim()).filter(Boolean)
+  if (!form.value.title || authors.length === 0) return ''
+  const temp: ReferenceItem = {
+    id: '',
+    index: 0,
+    type: form.value.type,
+    authors,
+    title: form.value.title,
+    year: form.value.year,
+    journal: form.value.journal || undefined,
+    volume: form.value.volume || undefined,
+    issue: form.value.issue || undefined,
+    pages: form.value.pages || undefined,
+    publisher: form.value.publisher || undefined,
+    address: form.value.address || undefined,
+  }
+  return formatGB7714(temp)
+})
 const form = ref({
   type: ReferenceType.JOURNAL,
   authors: '',
@@ -85,6 +108,10 @@ function addReference() {
       <input v-if="form.type === ReferenceType.BOOK" v-model="form.publisher" placeholder="出版社" />
       <input v-if="form.type === ReferenceType.BOOK" v-model="form.address" placeholder="出版地" />
       <button class="btn-save" @click="addReference">保存</button>
+      <div v-if="formattedPreview" class="ref-preview">
+        <span class="preview-label">GB/T 7714 预览：</span>
+        {{ formattedPreview }}
+      </div>
     </div>
 
     <div class="ref-list">
@@ -105,6 +132,8 @@ function addReference() {
 .ref-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding: 12px; background: #f8f8f8; border-radius: 4px; }
 .ref-form input, .ref-form select { padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
 .btn-save { padding: 6px; border: none; border-radius: 4px; background: #1a73e8; color: #fff; cursor: pointer; }
+.ref-preview { padding: 8px 10px; background: #f0f7ff; border-radius: 4px; font-size: 12px; color: #555; line-height: 1.5; word-break: break-all; }
+.preview-label { font-weight: 500; color: #1a73e8; }
 .ref-list { display: flex; flex-direction: column; gap: 4px; }
 .ref-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
 .ref-index { font-weight: 500; color: #1a73e8; flex-shrink: 0; }
