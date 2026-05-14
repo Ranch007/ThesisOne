@@ -7,7 +7,7 @@ import PageFlow from './PageFlow.vue'
 
 const docStore = useDocumentStore()
 const configStore = useConfigStore()
-const { ast, parseStatus } = storeToRefs(docStore)
+const { ast, parseStatus, parseError } = storeToRefs(docStore)
 const { config } = storeToRefs(configStore)
 
 const containerRef = ref<HTMLElement | null>(null)
@@ -44,7 +44,9 @@ onUnmounted(() => {
     </div>
 
     <div v-else-if="parseStatus === 'error'" class="preview-empty preview-error">
-      解析失败
+      <p class="preview-hint-title">解析失败</p>
+      <p v-if="parseError" class="preview-hint-sub">{{ parseError }}</p>
+      <p class="preview-hint-sub">请检查输入内容格式是否正确</p>
     </div>
 
     <div v-else-if="ast" ref="containerRef" class="preview-pages">
