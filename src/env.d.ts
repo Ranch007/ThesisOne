@@ -1,4 +1,8 @@
 /// <reference types="vite/client" />
 
-declare const __GIT_COMMIT__: string
-declare const __BUILD_TIME__: string
+declare global {
+  const __GIT_COMMIT__: string
+  const __BUILD_TIME__: string
+}
+
+export {}

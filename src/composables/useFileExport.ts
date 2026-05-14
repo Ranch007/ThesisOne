@@ -32,7 +32,7 @@ export function useFileExport() {
   }
 
   function yieldToUI(): Promise<void> {
-    return new Promise((resolve) => requestAnimationFrame(resolve))
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()))
   }
 
   const toast = useToast()

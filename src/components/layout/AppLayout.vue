@@ -21,6 +21,9 @@ const { runValidation } = useFormatValidator()
 const { doExport } = useFileExport()
 const valStore = useValidationStore()
 const { errorCount } = storeToRefs(valStore)
+const gitCommit = __GIT_COMMIT__
+const buildTime = __BUILD_TIME__
+
 const editWidth = ref(50)
 const showSettings = ref(false)
 const showIssues = ref(false)
@@ -74,7 +77,7 @@ function toggleIssues() {
   <div v-else class="app-layout">
     <header class="app-header">
       <h1 class="app-title">江大毕业论文排版工具</h1>
-      <span class="app-version" :title="__BUILD_TIME__">v{{ __GIT_COMMIT__ }}</span>
+      <span class="app-version" :title="buildTime">v{{ gitCommit }}</span>
       <Toolbar @open-settings="openSettings" @toggle-issues="toggleIssues" />
     </header>
 

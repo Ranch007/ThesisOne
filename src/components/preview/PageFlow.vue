@@ -114,15 +114,6 @@ function estimateLines(node: DocumentNode): number {
   return 1
 }
 
-// ── 页码计算 ──────────────────────────────────
-// 正文起始页码（封面、摘要、目录不算正文页码）
-const bodyStartOffset = computed(() => {
-  let pages = 0
-  if (hasCover.value) pages++
-  if (frontNodes.value.length > 0) pages++
-  if (tocNodes.value.length > 0) pages++
-  return pages
-})
 </script>
 
 <template>
