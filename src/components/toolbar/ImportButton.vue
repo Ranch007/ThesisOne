@@ -40,7 +40,7 @@ async function onFileChange(e: Event) {
 
 <template>
   <div ref="root" class="import-button">
-    <button :disabled="importing" @click="toggleMenu">
+    <button :disabled="importing" @click="toggleMenu" aria-label="导入文件">
       <Spinner v-if="importing" :size="14" />
       <span v-else>导入</span>
     </button>

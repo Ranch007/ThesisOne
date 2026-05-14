@@ -7,7 +7,7 @@ const { doExport, exporting, pendingConfirm, confirmExport } = useFileExport()
 </script>
 
 <template>
-  <button :disabled="exporting" @click="doExport">
+  <button :disabled="exporting" @click="doExport" aria-label="导出 DOCX 文件">
     <Spinner v-if="exporting" :size="14" />
     <span v-else>导出 DOCX</span>
   </button>

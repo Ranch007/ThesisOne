@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDocumentStore } from '@/stores/document'
 import { useConfigStore } from '@/stores/config'
@@ -33,6 +33,14 @@ onMounted(() => {
 onUnmounted(() => {
   observer?.disconnect()
 })
+
+// 内容更新时滚动到顶部
+watch(ast, async () => {
+  await nextTick()
+  if (containerRef.value) {
+    containerRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+})
 </script>
 
 <template>
@@ -44,7 +52,8 @@ onUnmounted(() => {
     </div>
 
     <div v-else-if="parseStatus === 'parsing'" class="preview-empty">
-      正在解析...
+      <p class="preview-hint-title">正在解析...</p>
+      <p class="preview-hint-sub">识别论文结构：题目、摘要、标题层级、图表、公式、参考文献</p>
     </div>
 
     <div v-else-if="parseStatus === 'error'" class="preview-empty preview-error">
