@@ -13,6 +13,23 @@ export function useFileExport() {
   const exporting = ref(false)
   const exportError = ref<string | null>(null)
 
+  // Promise 模式确认对话框——由组件渲染 ConfirmDialog
+  const pendingConfirm = ref<string | null>(null)
+  let confirmResolve: ((value: boolean) => void) | null = null
+
+  function requestConfirm(message: string): Promise<boolean> {
+    pendingConfirm.value = message
+    return new Promise((resolve) => {
+      confirmResolve = resolve
+    })
+  }
+
+  function confirmExport(ok: boolean) {
+    pendingConfirm.value = null
+    confirmResolve?.(ok)
+    confirmResolve = null
+  }
+
   function yieldToUI(): Promise<void> {
     return new Promise((resolve) => requestAnimationFrame(resolve))
   }
@@ -25,10 +42,10 @@ export function useFileExport() {
 
     // 超大文档确认（15,000+ 段落）
     if (docStore.paragraphCount > 15000) {
-      const confirmed = confirm(
+      const ok = await requestConfirm(
         `当前文档包含 ${docStore.paragraphCount} 个段落，导出可能需要较长时间。是否继续？`,
       )
-      if (!confirmed) return
+      if (!ok) return
     }
 
     exporting.value = true
@@ -56,5 +73,5 @@ export function useFileExport() {
     }
   }
 
-  return { doExport, exporting, exportError }
+  return { doExport, exporting, exportError, pendingConfirm, confirmExport }
 }
