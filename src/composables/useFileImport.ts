@@ -10,7 +10,29 @@ export function useFileImport() {
   const importing = ref(false)
   const importError = ref<string | null>(null)
 
+  // Promise 模式确认——非空导入时由组件渲染 ConfirmDialog
+  const pendingImportConfirm = ref<File | null>(null)
+  let importConfirmResolve: ((value: boolean) => void) | null = null
+
+  function requestImportConfirm(file: File): Promise<boolean> {
+    pendingImportConfirm.value = file
+    return new Promise((resolve) => {
+      importConfirmResolve = resolve
+    })
+  }
+
+  function confirmImport(ok: boolean) {
+    pendingImportConfirm.value = null
+    importConfirmResolve?.(ok)
+    importConfirmResolve = null
+  }
+
   async function importFromFile(file: File): Promise<void> {
+    // 非空编辑器：确认覆盖
+    if (docStore.hasContent) {
+      const ok = await requestImportConfirm(file)
+      if (!ok) return
+    }
     importing.value = true
     importError.value = null
 
@@ -49,5 +71,5 @@ export function useFileImport() {
     }
   }
 
-  return { importFromFile, importing, importError }
+  return { importFromFile, importing, importError, pendingImportConfirm, confirmImport }
 }

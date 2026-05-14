@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useFileImport } from '@/composables/useFileImport'
+import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
 
-const { importFromFile, importing, importError } = useFileImport()
+const { importFromFile, importing, importError, pendingImportConfirm, confirmImport } = useFileImport()
 const showMenu = ref(false)
 const fileInput = ref<HTMLInputElement>()
 
@@ -43,6 +44,16 @@ async function onFileChange(e: Event) {
       @change="onFileChange"
     />
     <div v-if="importError" class="import-error">{{ importError }}</div>
+
+    <ConfirmDialog
+      :show="pendingImportConfirm !== null"
+      title="确认导入"
+      :message="`编辑区已有内容，导入 ${pendingImportConfirm?.name ?? ''} 将覆盖当前内容。是否继续？`"
+      confirm-text="覆盖导入"
+      cancel-text="取消"
+      @confirm="confirmImport(true)"
+      @cancel="confirmImport(false)"
+    />
   </div>
 </template>
 

@@ -130,12 +130,17 @@ const bodyStartOffset = computed(() => {
     <!-- 封面页 -->
     <div v-if="hasCover" class="a4-page cover-page">
       <div class="cover-content">
-        <p class="cover-title">{{ coverNodes[0]?.text }}</p>
-        <p
-          v-if="coverNodes[1]"
-          class="cover-author"
-          v-html="coverNodes[1].text.replace(/\n/g, '<br/>')"
-        />
+        <p class="cover-university">{{ config.cover.university }}</p>
+        <p class="cover-doc-type">本科毕业论文（设计）</p>
+        <div class="cover-spacer" />
+        <p class="cover-title">{{ coverNodes[0]?.text || config.cover.thesisTitle }}</p>
+        <div class="cover-spacer" />
+        <p class="cover-field">学&emsp;&emsp;院：{{ config.cover.college }}</p>
+        <p class="cover-field">专&emsp;&emsp;业：{{ config.cover.major }}</p>
+        <p class="cover-field">学&emsp;&emsp;号：{{ config.cover.studentId }}</p>
+        <p class="cover-field">学生姓名：{{ config.cover.studentName }}</p>
+        <p class="cover-field">指导教师：{{ config.cover.advisor }}</p>
+        <p class="cover-field">提交日期：{{ config.cover.submissionDate }}</p>
       </div>
     </div>
 
@@ -232,9 +237,24 @@ const bodyStartOffset = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   min-height: calc(1123px - 192px);
-  gap: 32px;
+  gap: 12px;
+  padding-top: 80px;
+}
+
+.cover-university {
+  font-weight: bold;
+  font-size: 16pt;
+}
+
+.cover-doc-type {
+  font-weight: bold;
+  font-size: 16pt;
+  margin-bottom: 24px;
+}
+
+.cover-spacer {
+  height: 24px;
 }
 
 .cover-title {
@@ -243,10 +263,9 @@ const bodyStartOffset = computed(() => {
   text-align: center;
 }
 
-.cover-author {
+.cover-field {
   font-size: 12pt;
   text-align: center;
-  line-height: 2;
 }
 
 /* 封底 */
