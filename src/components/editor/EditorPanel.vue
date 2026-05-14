@@ -1,11 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useDocumentStore } from '@/stores/document'
+import { storeToRefs } from 'pinia'
 import TextEditor from './TextEditor.vue'
 import ReferenceEditor from './ReferenceEditor.vue'
 import CoverEditor from './CoverEditor.vue'
 import DropZone from './DropZone.vue'
 
+const docStore = useDocumentStore()
+const { rawText, paragraphCount } = storeToRefs(docStore)
+
+const charCount = computed(() => rawText.value.length)
 const activeTab = ref<'text' | 'references' | 'cover'>('text')
+
+function clearText() {
+  if (!docStore.hasContent) return
+  docStore.clearAll()
+}
 </script>
 
 <template>
@@ -22,6 +33,19 @@ const activeTab = ref<'text' | 'references' | 'cover'>('text')
       <CoverEditor v-else-if="activeTab === 'cover'" />
     </div>
 
+    <footer class="editor-status">
+      <span class="status-stats">
+        {{ charCount }} 字 · {{ paragraphCount }} 段
+      </span>
+      <button
+        v-if="docStore.hasContent"
+        class="status-clear"
+        @click="clearText"
+      >
+        清空
+      </button>
+    </footer>
+
     <DropZone />
   </div>
 </template>
@@ -32,4 +56,8 @@ const activeTab = ref<'text' | 'references' | 'cover'>('text')
 .editor-tabs button { padding: 8px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #666; border-bottom: 2px solid transparent; }
 .editor-tabs button.active { color: #1a73e8; border-bottom-color: #1a73e8; }
 .editor-content { flex: 1; overflow: hidden; }
+.editor-status { display: flex; align-items: center; justify-content: space-between; padding: 4px 12px; border-top: 1px solid #eee; background: #fafafa; flex-shrink: 0; }
+.status-stats { font-size: 11px; color: #999; }
+.status-clear { border: none; background: none; color: #d32f2f; font-size: 11px; cursor: pointer; }
+.status-clear:hover { text-decoration: underline; }
 </style>
