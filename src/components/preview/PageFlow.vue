@@ -39,8 +39,25 @@ const frontNodes = computed(() => {
   return [...fm.abstractZh, ...fm.abstractEn]
 })
 
-// ── 目录节点 ──────────────────────────────────
-const tocNodes = computed(() => props.ast.frontMatter.toc)
+// ── 目录节点（标题 + 自动从正文标题生成条目） ──
+const tocNodes = computed(() => {
+  const nodes: DocumentNode[] = []
+  // TOC 标题
+  for (const n of props.ast.frontMatter.toc) {
+    nodes.push(n)
+  }
+  // 从正文提取各级标题生成 TOC 条目
+  for (const n of props.ast.body) {
+    if (
+      n.type === NodeType.HEADING_1 ||
+      n.type === NodeType.HEADING_2 ||
+      n.type === NodeType.HEADING_3
+    ) {
+      nodes.push({ ...n, type: NodeType.TOC_ITEM })
+    }
+  }
+  return nodes
+})
 
 // ── 正文节点（分页） ──────────────────────────
 const bodyNodes = computed(() => props.ast.body)
@@ -122,23 +139,11 @@ const coverOffset = computed(() => (hasCover.value ? 1 : 0))
     />
 
     <!-- 目录页 -->
-    <div v-if="tocNodes.length > 0" class="a4-page toc-page">
-      <div class="toc-content">
-        <p class="toc-title">目&emsp;录</p>
-        <p
-          v-for="(node, i) in tocNodes"
-          :key="i"
-          class="toc-item"
-          :class="{
-            'toc-level-1': node.level === 1,
-            'toc-level-2': node.level === 2,
-            'toc-level-3': node.level === 3,
-          }"
-        >
-          <span>{{ node.text }}</span>
-        </p>
-      </div>
-    </div>
+    <A4Page
+      v-if="tocNodes.length > 0"
+      :nodes="tocNodes"
+      page-label=""
+    />
 
     <!-- 正文分页 -->
     <A4Page
@@ -235,37 +240,6 @@ const coverOffset = computed(() => (hasCover.value ? 1 : 0))
   text-align: center;
   line-height: 2;
 }
-
-/* 目录 */
-.toc-content {
-  min-height: calc(1123px - 192px);
-}
-
-.toc-title {
-  font-weight: bold;
-  font-size: 16pt;
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.toc-item {
-  font-size: 12pt;
-  line-height: 2;
-  display: flex;
-  justify-content: space-between;
-}
-
-.toc-item::after {
-  content: '…';
-  flex: 1;
-  text-align: right;
-  overflow: hidden;
-  white-space: nowrap;
-  direction: rtl;
-}
-
-.toc-level-2 { padding-left: 2em; }
-.toc-level-3 { padding-left: 4em; }
 
 /* 封底 */
 .back-cover-content {

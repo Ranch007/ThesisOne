@@ -7,13 +7,14 @@ defineProps<{
   pageLabel?: string
 }>()
 
-function getNodeClass(node: { type: string }): string {
+function getNodeClass(node: { type: string; level?: number }): string {
   const t = node.type
   if (t === NodeType.HEADING_1) return 'h1'
   if (t === NodeType.HEADING_2) return 'h2'
   if (t === NodeType.HEADING_3) return 'h3'
   if (t === NodeType.FIGURE_CAPTION || t === NodeType.TABLE_CAPTION) return 'caption'
-  if (t === 'title') return 'thesis-title'
+  if (t === 'title' || t === NodeType.THESIS_TITLE) return 'thesis-title'
+  if (t === NodeType.TOC_ITEM) return `toc-item toc-l${node.level ?? 1}`
   return ''
 }
 </script>
@@ -86,6 +87,24 @@ function getNodeClass(node: { type: string }): string {
   text-align: center;
   margin-bottom: 24px;
 }
+
+.a4-content .toc-item {
+  display: flex;
+  justify-content: space-between;
+  line-height: 2;
+}
+
+.a4-content .toc-item::after {
+  content: '…';
+  flex: 1;
+  text-align: right;
+  overflow: hidden;
+  white-space: nowrap;
+  direction: rtl;
+}
+
+.a4-content .toc-l2 { padding-left: 2em; }
+.a4-content .toc-l3 { padding-left: 4em; }
 
 .a4-footer {
   position: absolute;
