@@ -13,6 +13,10 @@ export function useFileExport() {
   const exporting = ref(false)
   const exportError = ref<string | null>(null)
 
+  function yieldToUI(): Promise<void> {
+    return new Promise((resolve) => requestAnimationFrame(resolve))
+  }
+
   async function doExport() {
     if (!docStore.ast) {
       exportError.value = '请先输入论文内容'
@@ -29,6 +33,9 @@ export function useFileExport() {
 
     exporting.value = true
     exportError.value = null
+
+    // 让出主线程渲染 loading 状态
+    await yieldToUI()
 
     try {
       const blob = await exportDocx({
