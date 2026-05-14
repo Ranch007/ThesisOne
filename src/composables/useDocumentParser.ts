@@ -2,12 +2,17 @@ import { watch, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDocumentStore } from '@/stores/document'
 import { useConfigStore } from '@/stores/config'
+import { useReferencesStore } from '@/stores/references'
+import { useValidationStore } from '@/stores/validation'
 import { parseThesis } from '@/parser'
+import { validateFormat } from '@/validator'
 
-/** 文档解析桥接：监听 rawText + discipline → 防抖解析 → 更新 AST */
+/** 文档解析桥接：监听 rawText + discipline → 防抖解析 → 更新 AST → 自动检测 */
 export function useDocumentParser() {
   const docStore = useDocumentStore()
   const configStore = useConfigStore()
+  const refStore = useReferencesStore()
+  const valStore = useValidationStore()
   const { rawText } = storeToRefs(docStore)
   const { config } = storeToRefs(configStore)
   const debounceMs = ref(300)
@@ -17,6 +22,7 @@ export function useDocumentParser() {
   function doParse() {
     if (!rawText.value) {
       docStore.clearAll()
+      valStore.clearIssues()
       return
     }
     try {
@@ -25,6 +31,9 @@ export function useDocumentParser() {
         discipline: config.value.discipline,
       })
       docStore.setAST(ast)
+      // 自动格式检测
+      const issues = validateFormat(ast, refStore.items)
+      valStore.setIssues(issues)
     } catch (e) {
       docStore.setParseError(e instanceof Error ? e.message : '解析失败')
     }

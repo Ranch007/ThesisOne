@@ -1,0 +1,55 @@
+/* 打印样式：隐藏 UI 元素，仅输出 A4 页面内容 */
+@media print {
+  .app-header,
+  .editor-pane,
+  .resize-handle,
+  .zoom-controls,
+  .toast-container,
+  .issues-panel,
+  .sampled-notice,
+  .settings-tabs,
+  .settings-footer,
+  .editor-tabs,
+  .editor-status {
+    display: none !important;
+  }
+
+  .app-layout {
+    height: auto !important;
+  }
+
+  .app-main {
+    display: block !important;
+  }
+
+  .preview-pane {
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .preview-panel {
+    background: white !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .preview-pages {
+    gap: 0 !important;
+    transform: none !important;
+  }
+
+  .a4-page {
+    box-shadow: none !important;
+    page-break-after: always;
+    margin: 0 auto;
+  }
+
+  .a4-page:last-child {
+    page-break-after: avoid;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}

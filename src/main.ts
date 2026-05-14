@@ -6,6 +6,7 @@ import './assets/styles/reset.css'
 import './assets/editor.css'
 import './assets/preview.css'
 import './assets/components.css'
+import './assets/print.css'
 
 const app = createApp(App)
 const pinia = createPinia()
