@@ -1,0 +1,107 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useFileImport } from '@/composables/useFileImport'
+
+const { importFromFile, importing, importError } = useFileImport()
+const showMenu = ref(false)
+const fileInput = ref<HTMLInputElement>()
+
+function toggleMenu() {
+  showMenu.value = !showMenu.value
+}
+
+function pickFile(accept: string) {
+  if (fileInput.value) {
+    fileInput.value.accept = accept
+    fileInput.value.click()
+  }
+  showMenu.value = false
+}
+
+async function onFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) await importFromFile(file)
+  input.value = ''
+}
+</script>
+
+<template>
+  <div class="import-button">
+    <button :disabled="importing" @click="toggleMenu">
+      {{ importing ? '导入中...' : '📥 导入' }}
+    </button>
+    <div v-if="showMenu" class="dropdown-menu">
+      <button @click="pickFile('.docx')">Word 文档 (.docx)</button>
+      <button @click="pickFile('.txt')">纯文本 (.txt)</button>
+      <button @click="pickFile('.md')">Markdown (.md)</button>
+    </div>
+    <input
+      ref="fileInput"
+      type="file"
+      style="display: none"
+      @change="onFileChange"
+    />
+    <div v-if="importError" class="import-error">{{ importError }}</div>
+  </div>
+</template>
+
+<style scoped>
+.import-button {
+  position: relative;
+}
+
+button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button:hover {
+  background: #f0f0f0;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 180px;
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 0;
+  padding: 8px 14px;
+}
+
+.dropdown-menu button:hover {
+  background: #e8f0fe;
+}
+
+.import-error {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  color: #d32f2f;
+  font-size: 12px;
+  white-space: nowrap;
+}
+</style>

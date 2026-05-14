@@ -1,0 +1,17 @@
+.preview-pane {
+  background: #e8e8e8;
+  padding: var(--spacing-lg);
+  overflow: auto;
+}
+
+.a4-page {
+  width: 794px;
+  min-height: 1123px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  margin: 0 auto var(--spacing-lg);
+  padding: 96px 76px 96px 113px;
+  font-family: 'Times New Roman', '宋体', serif;
+  position: relative;
+  page-break-after: always;
+}

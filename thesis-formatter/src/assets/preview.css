@@ -1,0 +1,86 @@
+/* A4 预览区域样式 */
+
+.preview-container {
+  height: 100%;
+  overflow: auto;
+  background: #e8e8e8;
+  padding: 24px;
+}
+
+.preview-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #999;
+  font-size: 15px;
+  gap: 8px;
+}
+
+.preview-empty-state.error {
+  color: #d32f2f;
+}
+
+.a4-page-sheet {
+  width: 794px;
+  min-height: 1123px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .12);
+  padding: 96px 76px 96px 113px;
+  box-sizing: border-box;
+  font-family: 'Times New Roman', '宋体', serif;
+  position: relative;
+}
+
+.a4-page-content {
+  min-height: calc(1123px - 192px);
+}
+
+.a4-page-content p {
+  margin: 0;
+  line-height: 1.833;
+  font-size: 12pt;
+}
+
+.a4-page-content .heading-1 {
+  font-weight: bold;
+  font-size: 16pt;
+  text-align: center;
+  margin: 16px 0 8px;
+}
+
+.a4-page-content .heading-2 {
+  font-weight: bold;
+  font-size: 14pt;
+  margin: 12px 0 6px;
+  padding-left: 2em;
+}
+
+.a4-page-content .heading-3 {
+  font-weight: bold;
+  font-size: 12pt;
+  margin: 8px 0 4px;
+  padding-left: 2em;
+}
+
+.a4-page-content .caption {
+  font-size: 10.5pt;
+  text-align: center;
+  margin: 6px 0;
+}
+
+.a4-page-content .thesis-title {
+  font-weight: bold;
+  font-size: 18pt;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.a4-page-footer {
+  position: absolute;
+  bottom: 48px;
+  right: 76px;
+  font-size: 10.5pt;
+  color: #999;
+}

@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build (standard)
+        run: npm run build
+
+      - name: Build (single file)
+        run: npm run build:single
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-single/index.html
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+        if: startsWith(github.ref, 'refs/tags/')
