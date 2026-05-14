@@ -1,15 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useFileImport } from '@/composables/useFileImport'
 import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
 
 const { importFromFile, importing, importError, pendingImportConfirm, confirmImport } = useFileImport()
+const root = ref<HTMLElement>()
 const showMenu = ref(false)
 const fileInput = ref<HTMLInputElement>()
 
 function toggleMenu() {
   showMenu.value = !showMenu.value
 }
+
+function onOutsideClick(e: MouseEvent) {
+  if (root.value && !root.value.contains(e.target as Node)) {
+    showMenu.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('click', onOutsideClick))
+onUnmounted(() => document.removeEventListener('click', onOutsideClick))
 
 function pickFile(accept: string) {
   if (fileInput.value) {
@@ -28,7 +38,7 @@ async function onFileChange(e: Event) {
 </script>
 
 <template>
-  <div class="import-button">
+  <div ref="root" class="import-button">
     <button :disabled="importing" @click="toggleMenu">
       {{ importing ? '导入中...' : '📥 导入' }}
     </button>

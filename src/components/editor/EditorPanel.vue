@@ -3,22 +3,27 @@ import { ref, computed } from 'vue'
 import { useDocumentStore } from '@/stores/document'
 import { useReferencesStore } from '@/stores/references'
 import { storeToRefs } from 'pinia'
+import { useToast } from '@/composables/useToast'
 import TextEditor from './TextEditor.vue'
 import ReferenceEditor from './ReferenceEditor.vue'
 import CoverEditor from './CoverEditor.vue'
 import DropZone from './DropZone.vue'
+import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
 
 const docStore = useDocumentStore()
 const refStore = useReferencesStore()
+const toast = useToast()
 const { rawText, paragraphCount } = storeToRefs(docStore)
 const { count: refCount } = storeToRefs(refStore)
 
 const charCount = computed(() => rawText.value.length)
 const activeTab = ref<'text' | 'references' | 'cover'>('text')
+const showClearConfirm = ref(false)
 
-function clearText() {
-  if (!docStore.hasContent) return
+function confirmClear() {
   docStore.clearAll()
+  showClearConfirm.value = false
+  toast.show('已清空编辑内容', 'info')
 }
 </script>
 
@@ -45,13 +50,23 @@ function clearText() {
       <button
         v-if="docStore.hasContent"
         class="status-clear"
-        @click="clearText"
+        @click="showClearConfirm = true"
       >
         清空
       </button>
     </footer>
 
     <DropZone />
+
+    <ConfirmDialog
+      :show="showClearConfirm"
+      title="清空内容"
+      message="将清空编辑区所有内容（正文、解析结果），此操作不可撤销。是否继续？"
+      confirm-text="确认清空"
+      cancel-text="取消"
+      @confirm="confirmClear"
+      @cancel="showClearConfirm = false"
+    />
   </div>
 </template>
 
