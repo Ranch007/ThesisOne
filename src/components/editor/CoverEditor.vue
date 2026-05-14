@@ -1,9 +1,24 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useConfigStore } from '@/stores/config'
+import { useDocumentStore } from '@/stores/document'
 import { storeToRefs } from 'pinia'
 
 const configStore = useConfigStore()
+const docStore = useDocumentStore()
 const { config } = storeToRefs(configStore)
+
+// 自动从 AST 提取论文题目到封面
+watch(
+  () => docStore.ast?.frontMatter.title?.text,
+  (title) => {
+    if (title && !config.value.cover.thesisTitle) {
+      configStore.updateConfig({
+        cover: { ...config.value.cover, thesisTitle: title },
+      })
+    }
+  },
+)
 
 function updateCover(path: string, value: string) {
   configStore.updateConfig({

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onErrorCaptured } from 'vue'
 import Toolbar from '@/components/toolbar/Toolbar.vue'
 import EditorPanel from '@/components/editor/EditorPanel.vue'
 import PreviewPanel from '@/components/preview/PreviewPanel.vue'
@@ -19,6 +19,12 @@ const { doExport } = useFileExport()
 const editWidth = ref(50)
 const showSettings = ref(false)
 const showIssues = ref(false)
+const appError = ref<string | null>(null)
+
+onErrorCaptured((err) => {
+  appError.value = err instanceof Error ? err.message : String(err)
+  return false // 阻止错误继续传播
+})
 
 useDocumentParser()
 useAutoSave()
@@ -35,7 +41,13 @@ function toggleIssues() {
 </script>
 
 <template>
-  <div class="app-layout">
+  <div v-if="appError" class="app-error-boundary">
+    <h2>应用发生错误</h2>
+    <p>{{ appError }}</p>
+    <button @click="appError = null">重试</button>
+  </div>
+
+  <div v-else class="app-layout">
     <header class="app-header">
       <h1 class="app-title">江大毕业论文排版工具</h1>
       <span class="app-version" :title="__BUILD_TIME__">v{{ __GIT_COMMIT__ }}</span>
@@ -73,6 +85,10 @@ function toggleIssues() {
 </template>
 
 <style scoped>
+.app-error-boundary { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 16px; font-family: sans-serif; }
+.app-error-boundary h2 { margin: 0; color: #d32f2f; }
+.app-error-boundary p { color: #666; max-width: 480px; text-align: center; }
+.app-error-boundary button { padding: 8px 24px; border: 1px solid #1a73e8; border-radius: 4px; background: #1a73e8; color: #fff; cursor: pointer; font-size: 14px; }
 .app-layout { display: flex; flex-direction: column; height: 100vh; }
 .app-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 48px; border-bottom: 1px solid #e0e0e0; background: #fff; flex-shrink: 0; }
 .app-title { font-size: 18px; font-weight: 600; margin: 0; white-space: nowrap; }

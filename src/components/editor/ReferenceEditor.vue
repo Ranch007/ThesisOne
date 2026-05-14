@@ -3,11 +3,14 @@ import { ref } from 'vue'
 import { useReferencesStore } from '@/stores/references'
 import { ReferenceType } from '@/types/reference'
 import { storeToRefs } from 'pinia'
+import { useToast } from '@/composables/useToast'
 
 const refStore = useReferencesStore()
+const toast = useToast()
 const { items } = storeToRefs(refStore)
 
 const showForm = ref(false)
+const formErrors = ref<string[]>([])
 const form = ref({
   type: ReferenceType.JOURNAL,
   authors: '',
@@ -22,13 +25,28 @@ const form = ref({
 })
 
 function addReference() {
+  formErrors.value = []
   const authors = form.value.authors.split(/[,，、]/).map((s) => s.trim()).filter(Boolean)
-  if (!authors.length || !form.value.title) return
+
+  if (!form.value.title.trim()) {
+    formErrors.value.push('标题不能为空')
+  }
+  if (authors.length === 0) {
+    formErrors.value.push('作者不能为空')
+  }
+  if (!form.value.year || form.value.year < 1900 || form.value.year > 2100) {
+    formErrors.value.push('年份不合法')
+  }
+
+  if (formErrors.value.length > 0) {
+    toast.show(formErrors.value[0], 'error')
+    return
+  }
 
   refStore.addRef({
     type: form.value.type,
     authors,
-    title: form.value.title,
+    title: form.value.title.trim(),
     year: form.value.year,
     ...(form.value.journal ? { journal: form.value.journal } : {}),
     ...(form.value.volume ? { volume: form.value.volume } : {}),
@@ -38,6 +56,7 @@ function addReference() {
     ...(form.value.address ? { address: form.value.address } : {}),
   })
 
+  toast.show(`已添加文献 [${items.value.length + 1}]`, 'success')
   form.value = { ...form.value, authors: '', title: '', journal: '', volume: '', issue: '', pages: '', publisher: '', address: '' }
   showForm.value = false
 }
