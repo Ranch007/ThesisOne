@@ -2,16 +2,23 @@
 import { useConfigStore } from '@/stores/config'
 import { Discipline } from '@/types/ast'
 import { storeToRefs } from 'pinia'
+import { useToast } from '@/composables/useToast'
 
 const configStore = useConfigStore()
 const { config } = storeToRefs(configStore)
+const toast = useToast()
 
 function toggle() {
-  configStore.switchDiscipline(
+  const next =
     config.value.discipline === Discipline.SOCIAL_SCIENCE
       ? Discipline.SCIENCE_ENGINEERING
-      : Discipline.SOCIAL_SCIENCE,
-  )
+      : Discipline.SOCIAL_SCIENCE
+  configStore.switchDiscipline(next)
+  const mode =
+    next === Discipline.SOCIAL_SCIENCE
+      ? '社科类（一、（一）、1.）'
+      : '理工类（1、1.1、1.1.1）'
+  toast.show(`已切换至${mode}，解析规则将重新匹配标题`, 'info')
 }
 </script>
 

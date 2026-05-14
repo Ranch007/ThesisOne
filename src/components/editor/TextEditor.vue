@@ -23,9 +23,9 @@ const { rawText } = storeToRefs(docStore)
   border: none;
   resize: none;
   padding: 16px;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1.8;
+  font-family: '宋体', 'Times New Roman', serif;
+  font-size: 12pt;
+  line-height: 1.833;
   outline: none;
   background: #fafafa;
 }

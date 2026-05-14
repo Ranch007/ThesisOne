@@ -2,16 +2,20 @@
 import { ref } from 'vue'
 import { useConfigStore } from '@/stores/config'
 import Modal from '@/components/shared/Modal.vue'
+import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
 import PageSettings from './PageSettings.vue'
 import HeadingSettings from './HeadingSettings.vue'
 import BodySettings from './BodySettings.vue'
 import PageNumSettings from './PageNumSettings.vue'
+import { useToast } from '@/composables/useToast'
 
 defineProps<{ show: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const configStore = useConfigStore()
+const toast = useToast()
 const activeTab = ref<'page' | 'heading' | 'body' | 'pageNum'>('page')
+const showResetConfirm = ref(false)
 const tabs = [
   { key: 'page' as const, label: '页面设置' },
   { key: 'heading' as const, label: '标题格式' },
@@ -21,6 +25,8 @@ const tabs = [
 
 function resetDefaults() {
   configStore.resetToDefault()
+  showResetConfirm.value = false
+  toast.show('已恢复江汉大学默认排版设置', 'success')
 }
 </script>
 
@@ -43,9 +49,18 @@ function resetDefaults() {
     <PageNumSettings v-if="activeTab === 'pageNum'" />
 
     <div class="settings-footer">
-      <button class="btn-reset" @click="resetDefaults">恢复默认值</button>
+      <button class="btn-reset" @click="showResetConfirm = true">恢复默认值</button>
       <button class="btn-close" @click="emit('close')">关闭</button>
     </div>
+    <ConfirmDialog
+      :show="showResetConfirm"
+      title="恢复默认值"
+      message="将恢复江汉大学本科毕业论文默认排版设置，当前修改将丢失。是否继续？"
+      confirm-text="恢复默认"
+      cancel-text="取消"
+      @confirm="resetDefaults"
+      @cancel="showResetConfirm = false"
+    />
   </Modal>
 </template>
 

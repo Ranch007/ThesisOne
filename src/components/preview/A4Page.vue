@@ -13,6 +13,7 @@ function getNodeClass(node: { type: string; level?: number }): string {
   if (t === NodeType.HEADING_2) return 'h2'
   if (t === NodeType.HEADING_3) return 'h3'
   if (t === NodeType.FIGURE_CAPTION || t === NodeType.TABLE_CAPTION) return 'caption'
+  if (t === NodeType.FORMULA) return 'formula'
   if (t === 'title' || t === NodeType.THESIS_TITLE) return 'thesis-title'
   if (t === NodeType.TOC_ITEM) return `toc-item toc-l${node.level ?? 1}`
   return ''
@@ -105,6 +106,11 @@ function getNodeClass(node: { type: string; level?: number }): string {
 
 .a4-content .toc-l2 { padding-left: 2em; }
 .a4-content .toc-l3 { padding-left: 4em; }
+.a4-content .formula {
+  text-align: center;
+  margin: 12px 0;
+  font-style: italic;
+}
 
 .a4-footer {
   position: absolute;

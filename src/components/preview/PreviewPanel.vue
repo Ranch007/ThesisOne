@@ -34,7 +34,9 @@ onUnmounted(() => {
 <template>
   <div class="preview-panel">
     <div v-if="parseStatus === 'idle'" class="preview-empty">
-      输入论文内容后，此处将显示 A4 分页预览
+      <p class="preview-hint-title">A4 分页预览</p>
+      <p class="preview-hint-sub">在左侧编辑区输入论文正文内容，或拖拽 .docx / .txt / .md 文件导入</p>
+      <p class="preview-hint-sub">支持社科类（一、（一）、1.）和理工类（1、1.1、1.1.1）标题体系</p>
     </div>
 
     <div v-else-if="parseStatus === 'parsing'" class="preview-empty">
@@ -61,12 +63,15 @@ onUnmounted(() => {
 
 .preview-empty {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 200px;
   color: #999;
-  font-size: 15px;
+  gap: 8px;
 }
+.preview-hint-title { font-size: 17px; color: #666; margin: 0; }
+.preview-hint-sub { font-size: 13px; margin: 0; }
 
 .preview-error {
   color: #d32f2f;
