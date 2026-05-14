@@ -1,10 +1,12 @@
 import { ref } from 'vue'
 import { useDocumentStore } from '@/stores/document'
 import { readAsText, readAsArrayBuffer } from '@/utils/file-reader'
+import { useToast } from '@/composables/useToast'
 
 /** 文件导入处理 */
 export function useFileImport() {
   const docStore = useDocumentStore()
+  const toast = useToast()
   const importing = ref(false)
   const importError = ref<string | null>(null)
 
@@ -18,22 +20,30 @@ export function useFileImport() {
       if (ext === 'txt') {
         const text = await readAsText(file)
         docStore.updateRawText(text)
+        toast.show(`已导入 ${file.name}`, 'success')
       } else if (ext === 'md') {
         const text = await readAsText(file)
         docStore.updateRawText(text)
+        toast.show(`已导入 ${file.name}`, 'success')
       } else if (ext === 'docx') {
-        // mammoth 提取纯文本
         const { default: mammoth } = await import('mammoth')
         const buffer = await readAsArrayBuffer(file)
         const result = await mammoth.extractRawText({ arrayBuffer: buffer })
         docStore.updateRawText(result.value)
+        toast.show(`已导入 ${file.name}`, 'success')
       } else if (ext === 'doc' || ext === 'wps') {
-        importError.value = '不支持 .doc/.wps 格式，请先通过 Word/WPS 另存为 .docx 格式再导入。'
+        const msg = '不支持 .doc/.wps 格式，请先通过 Word/WPS 另存为 .docx 格式再导入。'
+        importError.value = msg
+        toast.show(msg, 'error')
       } else {
-        importError.value = `不支持的文件格式: .${ext}`
+        const msg = `不支持的文件格式: .${ext}`
+        importError.value = msg
+        toast.show(msg, 'error')
       }
     } catch (e) {
-      importError.value = e instanceof Error ? e.message : '文件导入失败'
+      const msg = e instanceof Error ? e.message : '文件导入失败'
+      importError.value = msg
+      toast.show(msg, 'error')
     } finally {
       importing.value = false
     }

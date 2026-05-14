@@ -107,8 +107,15 @@ function estimateLines(node: DocumentNode): number {
   return 1
 }
 
-// ── 全局页码索引 ──────────────────────────────
-const coverOffset = computed(() => (hasCover.value ? 1 : 0))
+// ── 页码计算 ──────────────────────────────────
+// 正文起始页码（封面、摘要、目录不算正文页码）
+const bodyStartOffset = computed(() => {
+  let pages = 0
+  if (hasCover.value) pages++
+  if (frontNodes.value.length > 0) pages++
+  if (tocNodes.value.length > 0) pages++
+  return pages
+})
 </script>
 
 <template>
@@ -132,11 +139,11 @@ const coverOffset = computed(() => (hasCover.value ? 1 : 0))
       </div>
     </div>
 
-    <!-- 中英文摘要（合并在封面背页或独立） -->
+    <!-- 中英文摘要 -->
     <A4Page
       v-if="frontNodes.length > 0"
       :nodes="frontNodes"
-      page-label="摘要"
+      page-label=""
     />
 
     <!-- 目录页 -->
@@ -146,19 +153,19 @@ const coverOffset = computed(() => (hasCover.value ? 1 : 0))
       page-label=""
     />
 
-    <!-- 正文分页 -->
+    <!-- 正文分页（从 1 起编） -->
     <A4Page
       v-for="(pageNodes, idx) in bodyPageCount"
       :key="'body-' + idx"
       :nodes="pageNodes"
-      :page-label="`第 ${idx + 1} 页`"
+      :page-label="`${idx + 1}`"
     />
 
-    <!-- 后置内容 -->
+    <!-- 后置内容（接正文页码） -->
     <A4Page
       v-if="backNodes.length > 0"
       :nodes="backNodes"
-      page-label=""
+      :page-label="`${bodyPageCount.length + 1}`"
     />
 
     <!-- 封底 -->

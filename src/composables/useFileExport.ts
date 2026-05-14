@@ -4,6 +4,7 @@ import { useDocumentStore } from '@/stores/document'
 import { useConfigStore } from '@/stores/config'
 import { useReferencesStore } from '@/stores/references'
 import { exportDocx } from '@/exporter'
+import { useToast } from '@/composables/useToast'
 
 /** DOCX 导出处理 */
 export function useFileExport() {
@@ -34,9 +35,11 @@ export function useFileExport() {
     return new Promise((resolve) => requestAnimationFrame(resolve))
   }
 
+  const toast = useToast()
+
   async function doExport() {
     if (!docStore.ast) {
-      exportError.value = '请先输入论文内容'
+      toast.show('请先输入论文内容', 'error')
       return
     }
 
@@ -65,9 +68,14 @@ export function useFileExport() {
         references: refStore.items,
         backCoverText: configStore.config.backCover.declarationText,
       })
-      saveAs(blob, '毕业论文.docx')
+      const filename = docStore.ast?.frontMatter.title?.text
+        ? `${docStore.ast.frontMatter.title.text}.docx`
+        : '毕业论文.docx'
+      saveAs(blob, filename)
+      toast.show('导出成功', 'success')
     } catch (e) {
-      exportError.value = e instanceof Error ? e.message : '导出失败'
+      const msg = e instanceof Error ? e.message : '导出失败'
+      toast.show(msg, 'error')
     } finally {
       exporting.value = false
     }

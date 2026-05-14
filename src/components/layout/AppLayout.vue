@@ -9,14 +9,23 @@ import FormatIssuesPanel from '@/components/validation/FormatIssuesPanel.vue'
 import { useFormatValidator } from '@/composables/useFormatValidator'
 import { useDocumentParser } from '@/composables/useDocumentParser'
 import { useAutoSave } from '@/composables/useAutoSave'
+import { useToast } from '@/composables/useToast'
+import { useKeyboard } from '@/composables/useKeyboard'
+import { useFileExport } from '@/composables/useFileExport'
 
+const { toasts, dismiss } = useToast()
+const { runValidation } = useFormatValidator()
+const { doExport } = useFileExport()
 const editWidth = ref(50)
 const showSettings = ref(false)
 const showIssues = ref(false)
 
 useDocumentParser()
 useAutoSave()
-const { runValidation } = useFormatValidator()
+useKeyboard([
+  { key: 's', ctrl: true, handler: () => doExport() },
+  { key: 'i', ctrl: true, handler: () => toggleIssues() },
+])
 
 function openSettings() { showSettings.value = true }
 function toggleIssues() {
@@ -47,6 +56,19 @@ function toggleIssues() {
 
     <SettingsModal :show="showSettings" @close="showSettings = false" />
     <FormatIssuesPanel v-if="showIssues" />
+
+    <!-- Toast 通知 -->
+    <div class="toast-container">
+      <div
+        v-for="t in toasts"
+        :key="t.id"
+        class="toast-item"
+        :class="t.type"
+        @click="dismiss(t.id)"
+      >
+        {{ t.message }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -57,4 +79,10 @@ function toggleIssues() {
 .app-version { font-size: 11px; color: #999; font-family: monospace; flex-shrink: 0; }
 .app-main { display: flex; flex: 1; overflow: hidden; }
 .editor-pane, .preview-pane { overflow: auto; min-width: 200px; }
+.toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2500; display: flex; flex-direction: column; gap: 8px; }
+.toast-item { padding: 10px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, .15); animation: toast-in .25s ease-out; }
+.toast-item.success { background: #e8f5e9; color: #2e7d32; }
+.toast-item.error { background: #ffebee; color: #c62828; }
+.toast-item.info { background: #e3f2fd; color: #1565c0; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 </style>
