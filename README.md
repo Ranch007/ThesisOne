@@ -1,5 +1,35 @@
-# Vue 3 + TypeScript + Vite
+# 毕业论文排版工具（ThesisOne）
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+江汉大学本科毕业论文在线排版工具，纯客户端 SPA，无需安装 Word 即可完成论文排版。
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## 特性
+
+- 纯文本输入，自动识别论文结构（题目、摘要、标题层级、图表、公式、参考文献）
+- 社科/理工双学科标题体系，一键切换
+- 实时 A4 分页预览，支持 50%-150% 缩放
+- 一键导出符合校标的 .docx 文件（兼容 Word 2010+ / WPS 2019+）
+- 中西文字体分离（宋体/黑体 + Times New Roman）
+- GB/T 7714-2015 参考文献管理（7 种文献类型）
+- 格式检测：标题层级、图表编号、引用一致性、字体合规
+- 封面/目录/封底完整结构支持
+- 多格式导入：.docx / .txt / .md
+- PWA 离线支持 + 单文件 HTML 离线版
+- 所有数据本地存储，不上传任何服务器
+
+## 开发
+
+```bash
+npm install
+npm run dev          # 开发服务器（热更新）
+npm run build        # 标准构建（含 PWA）
+npm run build:single # 单文件 HTML 离线构建
+npm test             # 运行测试（90 项）
+```
+
+## 技术栈
+
+Vue 3 + TypeScript + Pinia + Vite + docx + mammoth + Vitest
+
+## 许可证
+
+MIT
