@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDocumentStore } from '@/stores/document'
 import { useConfigStore } from '@/stores/config'
@@ -8,6 +9,26 @@ const docStore = useDocumentStore()
 const configStore = useConfigStore()
 const { ast, parseStatus } = storeToRefs(docStore)
 const { config } = storeToRefs(configStore)
+
+const containerRef = ref<HTMLElement | null>(null)
+const containerWidth = ref(0)
+
+let observer: ResizeObserver | null = null
+
+onMounted(() => {
+  if (!containerRef.value) return
+  observer = new ResizeObserver((entries) => {
+    const entry = entries[0]
+    if (entry) {
+      containerWidth.value = entry.contentRect.width
+    }
+  })
+  observer.observe(containerRef.value)
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
+})
 </script>
 
 <template>
@@ -24,8 +45,8 @@ const { config } = storeToRefs(configStore)
       解析失败
     </div>
 
-    <div v-else-if="ast" class="preview-pages">
-      <PageFlow :ast="ast" :config="config" />
+    <div v-else-if="ast" ref="containerRef" class="preview-pages">
+      <PageFlow :ast="ast" :config="config" :container-width="containerWidth" />
     </div>
   </div>
 </template>

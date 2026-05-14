@@ -8,6 +8,7 @@ import A4Page from './A4Page.vue'
 const props = defineProps<{
   ast: ThesisAST
   config: DocumentConfig
+  containerWidth?: number
 }>()
 
 const metrics = {
