@@ -29,6 +29,7 @@ function toggleIssues() {
   <div class="app-layout">
     <header class="app-header">
       <h1 class="app-title">江大毕业论文排版工具</h1>
+      <span class="app-version" :title="__BUILD_TIME__">v{{ __GIT_COMMIT__ }}</span>
       <Toolbar @open-settings="openSettings" @toggle-issues="toggleIssues" />
     </header>
 
@@ -53,6 +54,7 @@ function toggleIssues() {
 .app-layout { display: flex; flex-direction: column; height: 100vh; }
 .app-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 48px; border-bottom: 1px solid #e0e0e0; background: #fff; flex-shrink: 0; }
 .app-title { font-size: 18px; font-weight: 600; margin: 0; white-space: nowrap; }
+.app-version { font-size: 11px; color: #999; font-family: monospace; flex-shrink: 0; }
 .app-main { display: flex; flex: 1; overflow: hidden; }
 .editor-pane, .preview-pane { overflow: auto; min-width: 200px; }
 </style>

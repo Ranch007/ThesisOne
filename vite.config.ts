@@ -3,8 +3,23 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import { resolve } from 'path'
+import { execSync } from 'child_process'
+
+// 读取 git commit + build 时间用于版本注入
+function getGitCommit(): string {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim()
+  } catch {
+    return 'unknown'
+  }
+}
 
 export default defineConfig(({ mode }) => ({
+  define: {
+    __GIT_COMMIT__: JSON.stringify(getGitCommit()),
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
+
   plugins: [
     vue(),
     ...(mode !== 'single'
