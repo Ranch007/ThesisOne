@@ -4,8 +4,15 @@ import { checkHeadingHierarchy } from './heading-check'
 import { checkFigureTableSequence } from './figure-table-check'
 import { checkCitationConsistency } from './reference-check'
 import { checkFontCompliance } from './font-check'
+import { checkReferenceCount } from './reference-count-check'
 
-export { checkHeadingHierarchy, checkFigureTableSequence, checkCitationConsistency, checkFontCompliance }
+export {
+  checkHeadingHierarchy,
+  checkFigureTableSequence,
+  checkCitationConsistency,
+  checkFontCompliance,
+  checkReferenceCount,
+}
 
 /** 全量格式检测 */
 export function validateFormat(
@@ -17,5 +24,6 @@ export function validateFormat(
     ...checkFigureTableSequence(ast.body),
     ...checkCitationConsistency(ast, references),
     ...checkFontCompliance(ast),
+    ...checkReferenceCount(references),
   ]
 }
