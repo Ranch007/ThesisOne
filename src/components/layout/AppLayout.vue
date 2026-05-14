@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onErrorCaptured } from 'vue'
+import { ref, onErrorCaptured, watch } from 'vue'
 import Toolbar from '@/components/toolbar/Toolbar.vue'
 import EditorPanel from '@/components/editor/EditorPanel.vue'
 import PreviewPanel from '@/components/preview/PreviewPanel.vue'
@@ -12,10 +12,14 @@ import { useAutoSave } from '@/composables/useAutoSave'
 import { useToast } from '@/composables/useToast'
 import { useKeyboard } from '@/composables/useKeyboard'
 import { useFileExport } from '@/composables/useFileExport'
+import { useValidationStore } from '@/stores/validation'
+import { storeToRefs } from 'pinia'
 
 const { toasts, dismiss } = useToast()
 const { runValidation } = useFormatValidator()
 const { doExport } = useFileExport()
+const valStore = useValidationStore()
+const { errorCount } = storeToRefs(valStore)
 const editWidth = ref(50)
 const showSettings = ref(false)
 const showIssues = ref(false)
@@ -32,6 +36,13 @@ useKeyboard([
   { key: 's', ctrl: true, handler: () => doExport() },
   { key: 'i', ctrl: true, handler: () => toggleIssues() },
 ])
+
+// 检测到错误时自动弹出问题面板
+watch(errorCount, (count, prev) => {
+  if (count > 0 && (prev ?? 0) === 0) {
+    showIssues.value = true
+  }
+})
 
 function openSettings() { showSettings.value = true }
 function toggleIssues() {
