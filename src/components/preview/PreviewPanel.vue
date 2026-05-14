@@ -12,6 +12,10 @@ const { config } = storeToRefs(configStore)
 
 const containerRef = ref<HTMLElement | null>(null)
 const containerWidth = ref(0)
+const zoom = ref(100)
+
+function zoomIn() { zoom.value = Math.min(150, zoom.value + 10) }
+function zoomOut() { zoom.value = Math.max(50, zoom.value - 10) }
 
 let observer: ResizeObserver | null = null
 
@@ -49,7 +53,14 @@ onUnmounted(() => {
       <p class="preview-hint-sub">请检查输入内容格式是否正确</p>
     </div>
 
-    <div v-else-if="ast" ref="containerRef" class="preview-pages">
+    <div v-if="ast" class="zoom-controls">
+      <button @click="zoomOut" title="缩小">−</button>
+      <span>{{ zoom }}%</span>
+      <button @click="zoomIn" title="放大">+</button>
+      <button @click="zoom = 100" title="重置">重置</button>
+    </div>
+
+    <div v-else-if="ast" ref="containerRef" class="preview-pages" :style="{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }">
       <PageFlow :ast="ast" :config="config" :container-width="containerWidth" />
     </div>
   </div>
@@ -74,6 +85,25 @@ onUnmounted(() => {
 }
 .preview-hint-title { font-size: 17px; color: #666; margin: 0; }
 .preview-hint-sub { font-size: 13px; margin: 0; }
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  flex-shrink: 0;
+}
+.zoom-controls button {
+  padding: 2px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+.zoom-controls span { font-size: 12px; color: #666; min-width: 40px; text-align: center; }
+.zoom-controls button:hover { background: #f0f0f0; }
 
 .preview-error {
   color: #d32f2f;
