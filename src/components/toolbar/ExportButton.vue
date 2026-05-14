@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { useFileExport } from '@/composables/useFileExport'
 import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
+import Spinner from '@/components/shared/Spinner.vue'
 
 const { doExport, exporting, pendingConfirm, confirmExport } = useFileExport()
 </script>
 
 <template>
   <button :disabled="exporting" @click="doExport">
-    {{ exporting ? '导出中...' : '导出 DOCX' }}
+    <Spinner v-if="exporting" :size="14" />
+    <span v-else>导出 DOCX</span>
   </button>
 
   <ConfirmDialog
@@ -29,6 +31,9 @@ button {
   background: #fff;
   cursor: pointer;
   font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 button:hover { background: #f0f0f0; }
 button:disabled { opacity: .5; cursor: not-allowed; }

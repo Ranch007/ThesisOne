@@ -30,5 +30,18 @@ export function usePagination(metrics: PageMetrics) {
     showFullPreview.value = !showFullPreview.value
   }
 
-  return { currentPage, totalPages, isSampled, showFullPreview, setParagraphCount, toggleFullPreview, MAX_SAMPLE_PARAGRAPHS }
+  function goToPage(page: number) {
+    currentPage.value = Math.max(1, Math.min(page, totalPages.value))
+  }
+
+  return {
+    currentPage,
+    totalPages,
+    isSampled,
+    showFullPreview,
+    setParagraphCount,
+    toggleFullPreview,
+    goToPage,
+    MAX_SAMPLE_PARAGRAPHS,
+  }
 }

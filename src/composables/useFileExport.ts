@@ -68,8 +68,9 @@ export function useFileExport() {
         references: refStore.items,
         backCoverText: configStore.config.backCover.declarationText,
       })
-      const filename = docStore.ast?.frontMatter.title?.text
-        ? `${docStore.ast.frontMatter.title.text}.docx`
+      const rawTitle = docStore.ast?.frontMatter.title?.text
+      const filename = rawTitle
+        ? `${rawTitle.replace(/[\\/:*?"<>|]/g, '-')}.docx`
         : '毕业论文.docx'
       saveAs(blob, filename)
       toast.show('导出成功', 'success')

@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useFileImport } from '@/composables/useFileImport'
 import ConfirmDialog from '@/components/shared/ConfirmDialog.vue'
+import Spinner from '@/components/shared/Spinner.vue'
 
 const { importFromFile, importing, importError, pendingImportConfirm, confirmImport } = useFileImport()
 const root = ref<HTMLElement>()
@@ -40,7 +41,8 @@ async function onFileChange(e: Event) {
 <template>
   <div ref="root" class="import-button">
     <button :disabled="importing" @click="toggleMenu">
-      {{ importing ? '导入中...' : '📥 导入' }}
+      <Spinner v-if="importing" :size="14" />
+      <span v-else>导入</span>
     </button>
     <div v-if="showMenu" class="dropdown-menu">
       <button @click="pickFile('.docx')">Word 文档 (.docx)</button>
@@ -79,6 +81,9 @@ button {
   background: #fff;
   cursor: pointer;
   font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 button:hover {
