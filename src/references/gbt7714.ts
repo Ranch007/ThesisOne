@@ -1,9 +1,18 @@
 import { ReferenceType } from '@/types/reference'
 import type { ReferenceItem } from '@/types/reference'
 
+/** GB/T 7714 作者格式化：≤3人全列，>3人列前3人加"等"/"et al." */
+function formatAuthors(authors: string[]): string {
+  if (authors.length <= 3) return authors.join(', ')
+
+  const firstThree = authors.slice(0, 3).join(', ')
+  const hasCjk = /[一-鿿]/.test(authors[0])
+  return `${firstThree}, ${hasCjk ? '等' : 'et al.'}`
+}
+
 /** 按 GB/T 7714 格式输出参考文献条目 */
 export function formatGB7714(ref: ReferenceItem): string {
-  const authors = ref.authors.join(', ')
+  const authors = formatAuthors(ref.authors)
   const base = `${authors}. ${ref.title}`
 
   switch (ref.type) {
