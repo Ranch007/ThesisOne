@@ -69,12 +69,10 @@ const backNodes = computed(() => {
   return [...bm.references, ...bm.acknowledgement, ...bm.appendices]
 })
 
-// ── 正文分页 ──────────────────────────────────
-const bodyPageCount = computed(() => {
-  const nodes = bodyNodes.value
+// ── 分页工具 ──────────────────────────────────
+function paginate(nodes: DocumentNode[]): DocumentNode[][] {
   const limit = isSampled.value && !showFullPreview.value ? 200 : nodes.length
   const sliced = nodes.slice(0, limit)
-  setParagraphCount(sliced.length)
 
   const result: DocumentNode[][] = []
   let current: DocumentNode[] = []
@@ -92,7 +90,16 @@ const bodyPageCount = computed(() => {
   }
   if (current.length > 0) result.push(current)
   return result
+}
+
+// ── 分页结果 ──────────────────────────────────
+const bodyPages = computed(() => {
+  const result = paginate(bodyNodes.value)
+  setParagraphCount(bodyNodes.value.length)
+  return result
 })
+
+const backPages = computed(() => paginate(backNodes.value))
 
 function estimateLines(node: DocumentNode): number {
   if (node.type === NodeType.HEADING_1) return 3
@@ -160,7 +167,7 @@ const bodyStartOffset = computed(() => {
 
     <!-- 正文分页（从 1 起编） -->
     <A4Page
-      v-for="(pageNodes, idx) in bodyPageCount"
+      v-for="(pageNodes, idx) in bodyPages"
       :key="'body-' + idx"
       :nodes="pageNodes"
       :page-label="`${idx + 1}`"
@@ -168,9 +175,10 @@ const bodyStartOffset = computed(() => {
 
     <!-- 后置内容（接正文页码） -->
     <A4Page
-      v-if="backNodes.length > 0"
-      :nodes="backNodes"
-      :page-label="`${bodyPageCount.length + 1}`"
+      v-for="(pageNodes, idx) in backPages"
+      :key="'back-' + idx"
+      :nodes="pageNodes"
+      :page-label="`${bodyPages.length + idx + 1}`"
     />
 
     <!-- 封底 -->
