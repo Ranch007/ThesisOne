@@ -4,7 +4,7 @@ defineEmits<{ click: [] }>()
 </script>
 
 <template>
-  <button class="tool-btn" @click="$emit('click')" aria-label="格式检测">
+  <button class="tool-btn" @click="$emit('click')" aria-label="格式检测" title="格式检测（Ctrl+I）">
     格式检测
     <span v-if="errorCount" class="badge error">{{ errorCount }}</span>
     <span v-if="warningCount" class="badge warning">{{ warningCount }}</span>

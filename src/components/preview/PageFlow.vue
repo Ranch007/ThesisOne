@@ -41,24 +41,17 @@ const frontNodes = computed(() => {
 })
 
 // ── 目录节点（标题 + 自动从正文标题生成条目） ──
-const tocNodes = computed(() => {
-  const nodes: DocumentNode[] = []
-  // TOC 标题
-  for (const n of props.ast.frontMatter.toc) {
-    nodes.push(n)
-  }
-  // 从正文提取各级标题生成 TOC 条目
-  for (const n of props.ast.body) {
-    if (
+const tocItems = computed(() => {
+  return props.ast.body.filter(
+    (n) =>
       n.type === NodeType.HEADING_1 ||
       n.type === NodeType.HEADING_2 ||
-      n.type === NodeType.HEADING_3
-    ) {
-      nodes.push({ ...n, type: NodeType.TOC_ITEM })
-    }
-  }
-  return nodes
+      n.type === NodeType.HEADING_3,
+  )
 })
+
+const hasTocTitle = computed(() => props.ast.frontMatter.toc.length > 0)
+
 
 // ── 正文节点（分页） ──────────────────────────
 const bodyNodes = computed(() => props.ast.body)
@@ -150,11 +143,25 @@ function estimateLines(node: DocumentNode): number {
     />
 
     <!-- 目录页 -->
-    <A4Page
-      v-if="tocNodes.length > 0"
-      :nodes="tocNodes"
-      page-label=""
-    />
+    <div v-if="hasTocTitle || tocItems.length > 0" class="a4-page toc-page">
+      <div class="toc-content">
+        <p class="toc-title">目&emsp;录</p>
+        <template v-if="tocItems.length > 0">
+          <p
+            v-for="(node, i) in tocItems"
+            :key="'toc-' + i"
+            class="toc-item"
+            :class="{
+              'toc-level-2': node.level === 2,
+              'toc-level-3': node.level === 3,
+            }"
+          >
+            <span>{{ node.text }}</span>
+          </p>
+        </template>
+        <p v-else class="toc-empty">正文中未检测到标题，无法生成目录</p>
+      </div>
+    </div>
 
     <!-- 正文分页（从 1 起编） -->
     <A4Page
@@ -266,6 +273,33 @@ function estimateLines(node: DocumentNode): number {
   font-size: 12pt;
   text-align: center;
 }
+
+/* 目录 */
+.toc-content {
+  min-height: calc(1123px - 192px);
+}
+.toc-title {
+  font-weight: bold;
+  font-size: 16pt;
+  text-align: center;
+  margin-bottom: 32px;
+}
+.toc-item {
+  font-size: 12pt;
+  line-height: 2;
+  display: flex;
+  justify-content: space-between;
+}
+.toc-item::after {
+  content: '…';
+  flex: 1;
+  text-align: right;
+  overflow: hidden;
+  direction: rtl;
+}
+.toc-level-2 { padding-left: 2em; }
+.toc-level-3 { padding-left: 4em; }
+.toc-empty { text-align: center; color: #999; font-size: 12pt; margin-top: 48px; }
 
 /* 封底 */
 .back-cover-content {
