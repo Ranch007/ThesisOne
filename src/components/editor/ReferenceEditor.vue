@@ -31,6 +31,7 @@ const formattedPreview = computed(() => {
     pages: form.value.pages || undefined,
     publisher: form.value.publisher || undefined,
     address: form.value.address || undefined,
+    doi: form.value.doi || undefined,
   }
   return formatGB7714(temp)
 })
@@ -45,6 +46,7 @@ const form = ref({
   pages: '',
   publisher: '',
   address: '',
+  doi: '',
 })
 
 function addReference() {
@@ -77,10 +79,11 @@ function addReference() {
     ...(form.value.pages ? { pages: form.value.pages } : {}),
     ...(form.value.publisher ? { publisher: form.value.publisher } : {}),
     ...(form.value.address ? { address: form.value.address } : {}),
+    ...(form.value.doi ? { doi: form.value.doi } : {}),
   })
 
   toast.show(`已添加文献 [${items.value.length + 1}]`, 'success')
-  form.value = { ...form.value, authors: '', title: '', journal: '', volume: '', issue: '', pages: '', publisher: '', address: '' }
+  form.value = { ...form.value, authors: '', title: '', journal: '', volume: '', issue: '', pages: '', publisher: '', address: '', doi: '' }
   showForm.value = false
 }
 </script>
@@ -107,6 +110,7 @@ function addReference() {
       <input v-if="form.type === ReferenceType.JOURNAL" v-model="form.pages" placeholder="页码" />
       <input v-if="form.type === ReferenceType.BOOK" v-model="form.publisher" placeholder="出版社" />
       <input v-if="form.type === ReferenceType.BOOK" v-model="form.address" placeholder="出版地" />
+      <input v-model="form.doi" placeholder="DOI（可选）" />
       <button class="btn-save" @click="addReference">保存</button>
       <div v-if="formattedPreview" class="ref-preview">
         <span class="preview-label">GB/T 7714 预览：</span>

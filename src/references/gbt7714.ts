@@ -14,28 +14,35 @@ function formatAuthors(authors: string[]): string {
 export function formatGB7714(ref: ReferenceItem): string {
   const authors = formatAuthors(ref.authors)
   const base = `${authors}. ${ref.title}`
+  const doi = ref.doi ? ` DOI: ${ref.doi}.` : ''
 
   switch (ref.type) {
-    case ReferenceType.JOURNAL:
-      return `${base}[J]. ${ref.journal ?? ''}, ${ref.year}, ${ref.volume ?? ''}${ref.issue ? `(${ref.issue})` : ''}${ref.pages ? `: ${ref.pages}` : ''}.`
+    case ReferenceType.JOURNAL: {
+      const body = `${ref.journal ?? ''}, ${ref.year}, ${ref.volume ?? ''}${ref.issue ? `(${ref.issue})` : ''}${ref.pages ? `: ${ref.pages}` : ''}`
+      return `${base}[J]. ${body}.${doi}`
+    }
 
-    case ReferenceType.BOOK:
-      return `${base}[M]. ${ref.address ? `${ref.address}: ` : ''}${ref.publisher ?? ''}, ${ref.year}.`
+    case ReferenceType.BOOK: {
+      const body = `${ref.address ? `${ref.address}: ` : ''}${ref.publisher ?? ''}, ${ref.year}`
+      return `${base}[M]. ${body}.${doi}`
+    }
 
     case ReferenceType.CONFERENCE:
-      return `${base}[C]. ${ref.address ?? ''}, ${ref.year}${ref.pages ? `: ${ref.pages}` : ''}.`
+      return `${base}[C]. ${ref.address ?? ''}, ${ref.year}${ref.pages ? `: ${ref.pages}` : ''}.${doi}`
 
     case ReferenceType.THESIS:
-      return `${base}[D]. ${ref.address ?? ''}: ${ref.journal ?? ''}, ${ref.year}.`
+      return `${base}[D]. ${ref.address ?? ''}: ${ref.journal ?? ''}, ${ref.year}.${doi}`
 
     case ReferenceType.PATENT:
-      return `${base}[P]. ${ref.address ?? ''}, ${ref.year}.`
+      return `${base}[P]. ${ref.address ?? ''}, ${ref.year}.${doi}`
 
     case ReferenceType.NEWSPAPER:
-      return `${base}[N]. ${ref.journal ?? ''}, ${ref.year}${ref.pages ? `(${ref.pages})` : ''}.`
+      return `${base}[N]. ${ref.journal ?? ''}, ${ref.year}${ref.pages ? `(${ref.pages})` : ''}.${doi}`
 
-    case ReferenceType.ONLINE:
-      return `${base}[EB/OL]. ${ref.url ?? ''}, ${ref.year}${ref.accessDate ? `(${ref.accessDate})` : ''}.`
+    case ReferenceType.ONLINE: {
+      const body = `${ref.url ?? ''}, ${ref.year}${ref.accessDate ? `(${ref.accessDate})` : ''}`
+      return `${base}[EB/OL]. ${body}.${doi}`
+    }
 
     default:
       return `${base}.`
