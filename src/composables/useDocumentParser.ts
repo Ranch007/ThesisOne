@@ -18,23 +18,28 @@ export function useDocumentParser() {
   const debounceMs = ref(300)
 
   let timer: ReturnType<typeof setTimeout> | null = null
+  let parseVersion = 0
 
-  function doParse() {
+  function doParse(version: number) {
     if (!rawText.value) {
       docStore.clearAll()
       valStore.clearIssues()
       return
     }
+    // 防竞态：如果在此解析期间触发了新的变更，放弃本次结果
+    if (version !== parseVersion) return
     try {
       docStore.setParsing()
       const ast = parseThesis(rawText.value, {
         discipline: config.value.discipline,
       })
+      if (version !== parseVersion) return
       docStore.setAST(ast)
-      // 自动格式检测
       const issues = validateFormat(ast, refStore.items)
+      if (version !== parseVersion) return
       valStore.setIssues(issues)
     } catch (e) {
+      if (version !== parseVersion) return
       docStore.setParseError(e instanceof Error ? e.message : '解析失败')
     }
   }
@@ -44,7 +49,8 @@ export function useDocumentParser() {
     [rawText, () => config.value.discipline],
     () => {
       if (timer) clearTimeout(timer)
-      timer = setTimeout(doParse, debounceMs.value)
+      const v = ++parseVersion
+      timer = setTimeout(() => doParse(v), debounceMs.value)
     },
     { immediate: false },
   )
