@@ -19,9 +19,7 @@ function getNodeClass(node: { type: string; level?: number }): string {
   if (t === NodeType.AUTHOR_INFO) return 'author-info'
   if (t === NodeType.ABSTRACT_ZH_TITLE || t === NodeType.ABSTRACT_EN_TITLE) return 'abstract-title'
   if (t === NodeType.KEYWORDS_ZH || t === NodeType.KEYWORDS_EN) return 'keywords'
-  if (t === NodeType.TOC_TITLE) return 'section-title'
-  if (t === NodeType.TOC_ITEM) return `toc-item toc-l${node.level ?? 1}`
-  if (t === NodeType.REF_TITLE || t === NodeType.ACK_TITLE || t === NodeType.APPENDIX_TITLE) return 'section-title'
+  if (t === NodeType.TOC_TITLE || t === NodeType.REF_TITLE || t === NodeType.ACK_TITLE || t === NodeType.APPENDIX_TITLE) return 'section-title'
   if (t === NodeType.REF_ITEM) return 'body-text ref-item'
   if (t === NodeType.PARAGRAPH || t === NodeType.ABSTRACT_ZH_CONTENT || t === NodeType.ABSTRACT_EN_CONTENT || t === NodeType.ACK_CONTENT || t === NodeType.APPENDIX_CONTENT) return 'body-text'
   return 'body-text'
@@ -151,23 +149,6 @@ function getNodeClass(node: { type: string; level?: number }): string {
   text-indent: -2em;
 }
 
-.a4-content .toc-item {
-  display: flex;
-  justify-content: space-between;
-  line-height: 2;
-}
-
-.a4-content .toc-item::after {
-  content: '…';
-  flex: 1;
-  text-align: right;
-  overflow: hidden;
-  white-space: nowrap;
-  direction: rtl;
-}
-
-.a4-content .toc-l2 { padding-left: 2em; }
-.a4-content .toc-l3 { padding-left: 4em; }
 .a4-content .formula {
   text-align: center;
   margin: 12px 0;
