@@ -61,12 +61,7 @@ export function useFileExport() {
       const blob = await exportDocx({
         ast: docStore.ast,
         config: configStore.config,
-        cover: {
-          ...configStore.config.cover,
-          thesisTitle: configStore.config.cover.thesisTitle || (docStore.ast?.frontMatter.title?.text ?? ''),
-        },
         references: refStore.items,
-        backCoverText: configStore.config.backCover.declarationText,
       })
       const rawTitle = docStore.ast?.frontMatter.title?.text
       const filename = rawTitle

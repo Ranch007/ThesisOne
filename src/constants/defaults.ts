@@ -1,5 +1,4 @@
 import type { DocumentConfig } from '@/types/config'
-import type { CoverInfo, BackCoverInfo } from '@/types/cover'
 import { Discipline } from '@/types/ast'
 import { DEFAULT_MARGINS, FONT_FAMILY, FONT_SIZE, LINE_SPACING_TWIP } from './jhu'
 
@@ -69,20 +68,4 @@ export const DEFAULT_CONFIG: DocumentConfig = {
     formulaByChapter: true,
     tocShowDotLeader: true,
   },
-
-  cover: {
-    university: '江汉大学',
-    college: '',
-    major: '',
-    thesisTitle: '',
-    studentName: '',
-    studentId: '',
-    advisor: '',
-    submissionDate: new Date().toISOString().split('T')[0],
-  } as CoverInfo,
-
-  backCover: {
-    declarationText: '本人郑重声明：所呈交的毕业论文（设计）是本人在指导教师指导下独立完成的。本人完全了解江汉大学有关保留、使用毕业论文（设计）的规定，同意学校保留并向有关部门或机构送交论文的复印件和电子版。',
-    hasSignature: true,
-  } as BackCoverInfo,
 }

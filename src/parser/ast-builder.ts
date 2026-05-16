@@ -1,5 +1,6 @@
 import { NodeType, Discipline } from '@/types/ast'
-import type { ThesisAST } from '@/types/ast'
+import type { ThesisAST, DocumentNode, Token } from '@/types/ast'
+import type { SectionKey } from '@/types/editor'
 import { uid } from '@/utils/uid'
 import { tokenize } from './tokenizer'
 import { detectDiscipline } from './discipline'
@@ -65,6 +66,233 @@ function emptyAST(): ThesisAST {
     },
   }
 }
+
+// ═══════════════════════════════════════════════════════════════
+// 分章节解析（新增：编辑器 7 段独立输入）
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * 分章节解析 —— 每个章节独立解析，不再依赖状态机识别边界
+ */
+export function parseSections(
+  sections: Record<SectionKey, string>,
+  options: ParseOptions = {},
+): ThesisAST {
+  const discipline = options.discipline ?? Discipline.SOCIAL_SCIENCE
+  const ast = emptyAST()
+
+  // 中文摘要
+  if (sections.abstractZh.trim()) {
+    parseAbstractText(sections.abstractZh, 'zh', ast)
+  }
+
+  // 英文摘要
+  if (sections.abstractEn.trim()) {
+    parseAbstractText(sections.abstractEn, 'en', ast)
+  }
+
+  // 正文
+  if (sections.body.trim()) {
+    const tokens = tokenize(sections.body)
+    ast.body.push(...parseBodyContent(tokens, discipline, options.isMarkdown))
+  }
+
+  // 致谢
+  if (sections.acknowledgement.trim()) {
+    parseBackSection(sections.acknowledgement, 'ack', ast)
+  }
+
+  // 附录
+  if (sections.appendix.trim()) {
+    parseBackSection(sections.appendix, 'appendix', ast)
+  }
+
+  // 正文有标题时自动生成目录标题
+  if (ast.body.some((n) => n.type.startsWith('HEADING_'))) {
+    ast.frontMatter.toc.push({
+      id: uid(),
+      type: NodeType.TOC_TITLE,
+      text: '目  录',
+      lineNumber: 1,
+    })
+  }
+
+  return ast
+}
+
+/** 解析摘要文本（中文/英文） */
+function parseAbstractText(text: string, lang: 'zh' | 'en', ast: ThesisAST) {
+  const tokens = tokenize(text)
+  if (tokens.length === 0) return
+
+  const target = lang === 'zh' ? ast.frontMatter.abstractZh : ast.frontMatter.abstractEn
+  let i = 0
+
+  // 跳过空行
+  while (i < tokens.length && tokens[i].isEmpty) i++
+
+  // 首行作为摘要标题
+  if (i < tokens.length) {
+    const first = tokens[i]
+    const type = lang === 'zh' ? NodeType.ABSTRACT_ZH_TITLE : NodeType.ABSTRACT_EN_TITLE
+    target.push({
+      id: uid(),
+      type,
+      text: first.text.trim(),
+      lineNumber: first.lineNumber,
+    })
+    i++
+  }
+
+  // 剩余行中，检测关键词行，其余为摘要正文
+  for (let j = i; j < tokens.length; j++) {
+    const token = tokens[j]
+    if (token.isEmpty) continue
+    const t = token.text.trim()
+
+    if (lang === 'zh') {
+      const kw = matchKeywordsZh([token], 0)
+      if (kw) { target.push(kw); break }
+    } else {
+      const kw = matchKeywordsEn([token], 0)
+      if (kw) { target.push(kw); break }
+    }
+
+    target.push({
+      id: uid(),
+      type: lang === 'zh' ? NodeType.ABSTRACT_ZH_CONTENT : NodeType.ABSTRACT_EN_CONTENT,
+      text: t,
+      lineNumber: token.lineNumber,
+    })
+  }
+}
+
+/** 解析后置章节（致谢/附录） */
+function parseBackSection(text: string, kind: 'ack' | 'appendix', ast: ThesisAST) {
+  const tokens = tokenize(text)
+  if (tokens.length === 0) return
+
+  const target = kind === 'ack' ? ast.backMatter.acknowledgement : ast.backMatter.appendices
+  let i = 0
+  while (i < tokens.length && tokens[i].isEmpty) i++
+  if (i >= tokens.length) return
+
+  const firstToken = tokens[i]
+
+  // 检测首行是否匹配章节标题
+  let hasTitle = false
+  if (kind === 'ack') {
+    const ackTitle = matchAckTitle(firstToken)
+    if (ackTitle) { target.push(ackTitle); hasTitle = true; i++ }
+  } else {
+    const appTitle = matchAppendixTitle(firstToken)
+    if (appTitle) { target.push(appTitle); hasTitle = true; i++ }
+  }
+
+  // 无标题则自动补
+  if (!hasTitle) {
+    target.push({
+      id: uid(),
+      type: kind === 'ack' ? NodeType.ACK_TITLE : NodeType.APPENDIX_TITLE,
+      text: kind === 'ack' ? '致谢' : '附录',
+      lineNumber: firstToken.lineNumber,
+    })
+  }
+
+  // 剩余行作内容
+  for (let j = i; j < tokens.length; j++) {
+    const token = tokens[j]
+    if (token.isEmpty) continue
+    target.push({
+      id: uid(),
+      type: kind === 'ack' ? NodeType.ACK_CONTENT : NodeType.APPENDIX_CONTENT,
+      text: token.text.trim(),
+      lineNumber: token.lineNumber,
+    })
+  }
+}
+
+/**
+ * 解析正文内容（标题 + 段落 + 图表 + 公式）
+ *
+ * 从原 parseThesis() 中提取，删除了全局模式切换逻辑
+ * （REFERENCES / ACK / APPENDIX 检测），仅保留纯正文匹配。
+ */
+function parseBodyContent(
+  tokens: Token[],
+  discipline: Discipline,
+  isMarkdown?: boolean,
+): DocumentNode[] {
+  const result: DocumentNode[] = []
+  let currentChapter = 0
+
+  for (let j = 0; j < tokens.length; j++) {
+    const token = tokens[j]
+    if (token.isEmpty) continue
+
+    const text = token.text.trim()
+
+    // 1. 一级标题
+    const h1 = matchHeading1(token, discipline)
+    if (h1) {
+      currentChapter = extractChapterNumber(text)
+      result.push(h1)
+      continue
+    }
+
+    // 2. 三级标题（在二级之前，防止贪婪匹配）
+    const h3 = matchHeading3(token, discipline)
+    if (h3) {
+      result.push(h3)
+      continue
+    }
+
+    // 3. 二级标题
+    const h2 = matchHeading2(token, discipline)
+    if (h2) {
+      result.push(h2)
+      continue
+    }
+
+    // 4. Markdown 标题（仅 Markdown 模式）
+    if (isMarkdown) {
+      const mdHeading = matchMarkdownHeading(token)
+      if (mdHeading) {
+        if (mdHeading.level === 1) {
+          currentChapter = extractChapterNumber(mdHeading.text)
+        }
+        result.push(mdHeading)
+        continue
+      }
+    }
+
+    // 5. 图题
+    const figure = matchFigure(token, currentChapter)
+    if (figure) { result.push(figure); continue }
+
+    // 6. 表题
+    const table = matchTable(token, currentChapter)
+    if (table) { result.push(table); continue }
+
+    // 7. 公式
+    const formula = matchFormula(token, currentChapter)
+    if (formula) { result.push(formula); continue }
+
+    // 8. 默认 → 正文段落
+    result.push({
+      id: uid(),
+      type: NodeType.PARAGRAPH,
+      text: isMarkdown ? stripMarkdownInline(text) : text,
+      lineNumber: token.lineNumber,
+    })
+  }
+
+  return result
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 全文解析（保留用于文件导入兼容）
+// ═══════════════════════════════════════════════════════════════
 
 /**
  * 全文解析 —— 用户文本 → ThesisAST
@@ -135,10 +363,8 @@ export function parseThesis(rawText: string, options: ParseOptions = {}): Thesis
       ast.frontMatter.toc.push(tocNode)
       mode = ParseMode.TOC
       i++
-      // 跳过手动目录内容（系统自动生成）
       while (i < tokens.length && mode === ParseMode.TOC) {
         const next = tokens[i]
-        // 遇到正文标题（一级标题）则退出目录模式
         if (matchHeading1(next, discipline)) {
           mode = ParseMode.BODY
           break
@@ -158,8 +384,6 @@ export function parseThesis(rawText: string, options: ParseOptions = {}): Thesis
     if (token.isEmpty) continue
 
     const text = token.text.trim()
-
-    // 13 级优先级匹配（从高到低）
 
     // 1. 参考文献标题 → 切换模式
     const refTitle = matchRefTitle(token)
@@ -223,17 +447,17 @@ export function parseThesis(rawText: string, options: ParseOptions = {}): Thesis
       continue
     }
 
-    // 6. 二级标题
-    const h2 = matchHeading2(token, discipline)
-    if (h2) {
-      ast.body.push(h2)
-      continue
-    }
-
-    // 7. 三级标题
+    // 6. 三级标题（h3 必须在 h2 之前，防止 h2 贪婪匹配多级编号）
     const h3 = matchHeading3(token, discipline)
     if (h3) {
       ast.body.push(h3)
+      continue
+    }
+
+    // 7. 二级标题
+    const h2 = matchHeading2(token, discipline)
+    if (h2) {
+      ast.body.push(h2)
       continue
     }
 

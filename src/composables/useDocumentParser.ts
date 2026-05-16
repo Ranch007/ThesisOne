@@ -1,36 +1,44 @@
-import { watch, ref } from 'vue'
+import { watch, ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useDocumentStore } from '@/stores/document'
 import { useConfigStore } from '@/stores/config'
 import { useReferencesStore } from '@/stores/references'
 import { useValidationStore } from '@/stores/validation'
-import { parseThesis } from '@/parser'
+import { parseSections } from '@/parser'
 import { validateFormat } from '@/validator'
 
-/** 文档解析桥接：监听 rawText + discipline → 防抖解析 → 更新 AST → 自动检测 */
+/** 文档解析桥接：监听各章节内容 + discipline → 防抖解析 → 更新 AST → 自动校验 */
 export function useDocumentParser() {
   const docStore = useDocumentStore()
   const configStore = useConfigStore()
   const refStore = useReferencesStore()
   const valStore = useValidationStore()
-  const { rawText } = storeToRefs(docStore)
+  const { sections } = storeToRefs(docStore)
   const { config } = storeToRefs(configStore)
   const debounceMs = ref(300)
 
   let timer: ReturnType<typeof setTimeout> | null = null
   let parseVersion = 0
 
+  const combinedSections = computed(() => ({
+    abstractZh: sections.value.abstractZh,
+    abstractEn: sections.value.abstractEn,
+    body: sections.value.body,
+    acknowledgement: sections.value.acknowledgement,
+    appendix: sections.value.appendix,
+  }))
+
   function doParse(version: number) {
-    if (!rawText.value) {
+    const isEmpty = Object.values(combinedSections.value).every((s) => !s)
+    if (isEmpty) {
       docStore.clearAll()
       valStore.clearIssues()
       return
     }
-    // 防竞态：如果在此解析期间触发了新的变更，放弃本次结果
     if (version !== parseVersion) return
     try {
       docStore.setParsing()
-      const ast = parseThesis(rawText.value, {
+      const ast = parseSections(combinedSections.value, {
         discipline: config.value.discipline,
       })
       if (version !== parseVersion) return
@@ -44,9 +52,8 @@ export function useDocumentParser() {
     }
   }
 
-  // 防抖监听文本和学科变更
   watch(
-    [rawText, () => config.value.discipline],
+    [combinedSections, () => config.value.discipline],
     () => {
       if (timer) clearTimeout(timer)
       const v = ++parseVersion

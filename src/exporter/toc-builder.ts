@@ -6,12 +6,17 @@ import { FONT_FAMILY, FONT_SIZE, CHAR_WIDTH_TWIP } from '@/constants/jhu'
 export function buildTOC(
   headings: DocumentNode[],
   _config: DocumentConfig,
+  hasZhAbstract: boolean,
+  hasEnAbstract: boolean,
 ): Paragraph[] {
   const paragraphs: Paragraph[] = []
 
-  // 摘要
-  paragraphs.push(createTOCEntry('中文摘要', 'I', 1))
-  paragraphs.push(createTOCEntry('Abstract', 'II', 1))
+  if (hasZhAbstract) {
+    paragraphs.push(createTOCEntry('中文摘要', 'I', 1))
+  }
+  if (hasEnAbstract) {
+    paragraphs.push(createTOCEntry('Abstract', 'II', 1))
+  }
 
   for (const h of headings) {
     const level = h.level ?? 1

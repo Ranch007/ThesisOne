@@ -69,7 +69,7 @@ watch(ast, async () => {
       <button @click="zoom = 100" title="重置">重置</button>
     </div>
 
-    <div v-else-if="ast" ref="containerRef" class="preview-pages" :style="{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }">
+    <div v-if="ast" ref="containerRef" class="preview-pages" :style="{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }">
       <PageFlow :ast="ast" :config="config" :container-width="containerWidth" />
     </div>
   </div>

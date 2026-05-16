@@ -60,6 +60,19 @@ describe('matchHeading1 - 理工', () => {
     expect(result).not.toBeNull()
     expect(result!.level).toBe(1)
   })
+
+  it('should match "1. 绪论" as heading 1 (部分学校格式)', () => {
+    const tokens = tk('1. 绪论')
+    const result = matchHeading1(tokens[0], Discipline.SCIENCE_ENGINEERING)
+    expect(result).not.toBeNull()
+    expect(result!.level).toBe(1)
+  })
+
+  it('should NOT match "1.1 背景" as heading 1', () => {
+    const tokens = tk('1.1 研究背景')
+    const result = matchHeading1(tokens[0], Discipline.SCIENCE_ENGINEERING)
+    expect(result).toBeNull()
+  })
 })
 
 describe('matchHeading2 - 社科', () => {
@@ -87,6 +100,18 @@ describe('matchHeading3 - 社科', () => {
     expect(result).not.toBeNull()
     expect(result!.level).toBe(3)
   })
+
+  it('should NOT match multi-level "1.1 研究背景" as heading 3 in 社科 mode', () => {
+    const tokens = tk('1.1 研究背景')
+    const result = matchHeading3(tokens[0], Discipline.SOCIAL_SCIENCE)
+    expect(result).toBeNull()
+  })
+
+  it('should NOT match multi-level "1.1.1 参数设置" as heading 3 in 社科 mode', () => {
+    const tokens = tk('1.1.1 参数设置')
+    const result = matchHeading3(tokens[0], Discipline.SOCIAL_SCIENCE)
+    expect(result).toBeNull()
+  })
 })
 
 describe('matchHeading3 - 理工', () => {
@@ -95,6 +120,14 @@ describe('matchHeading3 - 理工', () => {
     const result = matchHeading3(tokens[0], Discipline.SCIENCE_ENGINEERING)
     expect(result).not.toBeNull()
     expect(result!.level).toBe(3)
+  })
+})
+
+describe('matchHeading2 - 理工 不误匹配三级', () => {
+  it('should NOT match "1.1.1 参数设置" as heading 2', () => {
+    const tokens = tk('1.1.1 参数设置')
+    const result = matchHeading2(tokens[0], Discipline.SCIENCE_ENGINEERING)
+    expect(result).toBeNull()
   })
 })
 

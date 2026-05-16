@@ -5,7 +5,7 @@ import { NodeType } from '@/types/ast'
 import type { DocumentNode } from '@/types/ast'
 
 describe('buildTOC', () => {
-  it('should return Paragraphs for heading nodes', () => {
+  it('should return Paragraphs for heading nodes with abstracts', () => {
     const headings: DocumentNode[] = [
       {
         id: '1',
@@ -22,12 +22,18 @@ describe('buildTOC', () => {
         level: 2,
       },
     ]
-    const result = buildTOC(headings, DEFAULT_CONFIG)
-    expect(result.length).toBeGreaterThan(0)
+    // 含中英文摘要 → 2 摘要条目 + 2 标题条目 = 4
+    const result = buildTOC(headings, DEFAULT_CONFIG, true, true)
+    expect(result.length).toBe(4)
   })
 
-  it('should return title paragraph even for empty headings', () => {
-    const result = buildTOC([], DEFAULT_CONFIG)
-    expect(Array.isArray(result)).toBe(true)
+  it('should skip abstract entries when no abstracts', () => {
+    const result = buildTOC([], DEFAULT_CONFIG, false, false)
+    expect(result.length).toBe(0)
+  })
+
+  it('should include only Chinese abstract when English abstract is empty', () => {
+    const result = buildTOC([], DEFAULT_CONFIG, true, false)
+    expect(result.length).toBe(1) // 仅中文摘要
   })
 })

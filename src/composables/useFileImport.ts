@@ -28,7 +28,6 @@ export function useFileImport() {
   }
 
   async function importFromFile(file: File): Promise<void> {
-    // 非空编辑器：确认覆盖
     if (docStore.hasContent) {
       const ok = await requestImportConfirm(file)
       if (!ok) return
@@ -39,20 +38,16 @@ export function useFileImport() {
     try {
       const ext = file.name.split('.').pop()?.toLowerCase()
 
-      if (ext === 'txt') {
+      if (ext === 'txt' || ext === 'md') {
         const text = await readAsText(file)
-        docStore.updateRawText(text)
-        toast.show(`已导入 ${file.name}`, 'success')
-      } else if (ext === 'md') {
-        const text = await readAsText(file)
-        docStore.updateRawText(text)
-        toast.show(`已导入 ${file.name}`, 'success')
+        docStore.updateSection('body', text)
+        toast.show(`已导入 ${file.name}（到正文）`, 'success')
       } else if (ext === 'docx') {
         const { default: mammoth } = await import('mammoth')
         const buffer = await readAsArrayBuffer(file)
         const result = await mammoth.extractRawText({ arrayBuffer: buffer })
-        docStore.updateRawText(result.value)
-        toast.show(`已导入 ${file.name}`, 'success')
+        docStore.updateSection('body', result.value)
+        toast.show(`已导入 ${file.name}（到正文）`, 'success')
       } else if (ext === 'doc' || ext === 'wps') {
         const msg = '不支持 .doc/.wps 格式，请先通过 Word/WPS 另存为 .docx 格式再导入。'
         importError.value = msg

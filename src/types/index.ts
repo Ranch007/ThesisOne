@@ -15,5 +15,4 @@ export type {
 export { ReferenceType } from './reference'
 export type { ReferenceItem, CitationValidation } from './reference'
 
-export type { CoverInfo, BackCoverInfo } from './cover'
 export type { FormatIssue } from './validation'

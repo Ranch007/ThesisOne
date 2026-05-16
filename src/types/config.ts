@@ -1,5 +1,4 @@
 import type { Discipline } from './ast'
-import type { CoverInfo, BackCoverInfo } from './cover'
 
 /** 页边距（单位 cm） */
 export interface Margins {
@@ -67,6 +66,4 @@ export interface DocumentConfig {
   pageNumber: PageNumberConfig
   refSection: RefSectionConfig
   specialOptions: SpecialOptions
-  cover: CoverInfo
-  backCover: BackCoverInfo
 }

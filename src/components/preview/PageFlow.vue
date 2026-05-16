@@ -23,18 +23,7 @@ const { isSampled, showFullPreview, toggleFullPreview, setParagraphCount } =
 
 const LINES_PER_PAGE = 40
 
-// ── 封面节点 ──────────────────────────────────
-const coverNodes = computed<DocumentNode[]>(() => {
-  const fm = props.ast.frontMatter
-  const nodes: DocumentNode[] = []
-  if (fm.title) nodes.push(fm.title)
-  if (fm.authorInfo) nodes.push(fm.authorInfo)
-  return nodes
-})
-
-const hasCover = computed(() => coverNodes.value.length > 0)
-
-// ── 前置节点（摘要+关键词，不含封面） ─────────
+// ── 前置节点（摘要+关键词） ─────────
 const frontNodes = computed(() => {
   const fm = props.ast.frontMatter
   return [...fm.abstractZh, ...fm.abstractEn]
@@ -51,6 +40,17 @@ const tocItems = computed(() => {
 })
 
 const hasTocTitle = computed(() => props.ast.frontMatter.toc.length > 0)
+
+// ── 目录页码映射：每个标题节点 → 所在正文页码（从 1 起编） ──
+const tocPageMap = computed(() => {
+  const map = new Map<string, number>()
+  bodyPages.value.forEach((page, idx) => {
+    for (const node of page) {
+      map.set(node.id, idx + 1)
+    }
+  })
+  return map
+})
 
 
 // ── 正文节点（分页） ──────────────────────────
@@ -118,23 +118,6 @@ function estimateLines(node: DocumentNode): number {
       </button>
     </div>
 
-    <!-- 封面页 -->
-    <div v-if="hasCover" class="a4-page cover-page">
-      <div class="cover-content">
-        <p class="cover-university">{{ config.cover.university }}</p>
-        <p class="cover-doc-type">本科毕业论文（设计）</p>
-        <div class="cover-spacer" />
-        <p class="cover-title">{{ coverNodes[0]?.text || config.cover.thesisTitle }}</p>
-        <div class="cover-spacer" />
-        <p class="cover-field">学&emsp;&emsp;院：{{ config.cover.college }}</p>
-        <p class="cover-field">专&emsp;&emsp;业：{{ config.cover.major }}</p>
-        <p class="cover-field">学&emsp;&emsp;号：{{ config.cover.studentId }}</p>
-        <p class="cover-field">学生姓名：{{ config.cover.studentName }}</p>
-        <p class="cover-field">指导教师：{{ config.cover.advisor }}</p>
-        <p class="cover-field">提交日期：{{ config.cover.submissionDate }}</p>
-      </div>
-    </div>
-
     <!-- 中英文摘要 -->
     <A4Page
       v-if="frontNodes.length > 0"
@@ -156,7 +139,9 @@ function estimateLines(node: DocumentNode): number {
               'toc-level-3': node.level === 3,
             }"
           >
-            <span>{{ node.text }}</span>
+            <span class="toc-text">{{ node.text }}</span>
+            <span class="toc-leader" />
+            <span class="toc-page">{{ tocPageMap.get(node.id) ?? '—' }}</span>
           </p>
         </template>
         <p v-else class="toc-empty">正文中未检测到标题，无法生成目录</p>
@@ -178,22 +163,6 @@ function estimateLines(node: DocumentNode): number {
       :nodes="pageNodes"
       :page-label="`${bodyPages.length + idx + 1}`"
     />
-
-    <!-- 封底 -->
-    <div
-      v-if="config.backCover.declarationText"
-      class="a4-page back-cover-page"
-    >
-      <div class="back-cover-content">
-        <p class="back-cover-text">
-          {{ config.backCover.declarationText }}
-        </p>
-        <div v-if="config.backCover.hasSignature" class="signature-area">
-          <span>学生签名：__________</span>
-          <span>指导教师签名：__________</span>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -238,42 +207,6 @@ function estimateLines(node: DocumentNode): number {
   position: relative;
 }
 
-/* 封面 */
-.cover-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: calc(1123px - 192px);
-  gap: 12px;
-  padding-top: 80px;
-}
-
-.cover-university {
-  font-weight: bold;
-  font-size: 16pt;
-}
-
-.cover-doc-type {
-  font-weight: bold;
-  font-size: 16pt;
-  margin-bottom: 24px;
-}
-
-.cover-spacer {
-  height: 24px;
-}
-
-.cover-title {
-  font-weight: bold;
-  font-size: 18pt;
-  text-align: center;
-}
-
-.cover-field {
-  font-size: 12pt;
-  text-align: center;
-}
-
 /* 目录 */
 .toc-content {
   min-height: calc(1123px - 192px);
@@ -288,39 +221,27 @@ function estimateLines(node: DocumentNode): number {
   font-size: 12pt;
   line-height: 2;
   display: flex;
-  justify-content: space-between;
+  align-items: baseline;
 }
-.toc-item::after {
-  content: '…';
+.toc-text {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.toc-leader {
   flex: 1;
+  min-width: 1em;
+  border-bottom: 1px dotted #666;
+  margin: 0 6px;
+  align-self: flex-end;
+}
+.toc-page {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 1.5em;
   text-align: right;
-  overflow: hidden;
-  direction: rtl;
 }
 .toc-level-2 { padding-left: 2em; }
 .toc-level-3 { padding-left: 4em; }
 .toc-empty { text-align: center; color: #999; font-size: 12pt; margin-top: 48px; }
 
-/* 封底 */
-.back-cover-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(1123px - 192px);
-  gap: 48px;
-}
-
-.back-cover-text {
-  font-size: 12pt;
-  text-align: center;
-  line-height: 2;
-  max-width: 500px;
-}
-
-.signature-area {
-  display: flex;
-  gap: 60px;
-  font-size: 12pt;
-}
 </style>

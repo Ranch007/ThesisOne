@@ -6,7 +6,7 @@ import {
   type ISectionOptions,
 } from 'docx'
 import { NodeType } from '@/types/ast'
-import type { ThesisAST, DocumentConfig, CoverInfo, ReferenceItem } from '@/types'
+import type { ThesisAST, DocumentConfig, ReferenceItem } from '@/types'
 import { FONT_FAMILY, FONT_SIZE } from '@/constants/jhu'
 import {
   createBodyParagraph,
@@ -15,69 +15,66 @@ import {
   createCenteredText,
   createMargins,
 } from './style-factory'
-import { buildCover } from './cover-builder'
 import { buildTOC } from './toc-builder'
 import { buildReferenceList } from './reference-builder'
 
 export interface BuildOptions {
   ast: ThesisAST
   config: DocumentConfig
-  cover: CoverInfo
-  backCoverText?: string
   references?: ReferenceItem[]
 }
 
 /** AST → OOXML Document */
 export function buildDocument(options: BuildOptions): Document {
-  const { ast, config, cover, backCoverText, references } = options
+  const { ast, config, references } = options
   const margins = createMargins(config)
   const sections: ISectionOptions[] = []
 
-  // ── 第 1 节：封面 ───────────────────────────────────
-  sections.push({
-    properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
-    children: buildCover(cover, config),
-  })
-
-  // ── 第 2 节：中文摘要 ───────────────────────────────
-  const zhChildren: Paragraph[] = []
-  for (const node of ast.frontMatter.abstractZh) {
-    if (node.type === NodeType.ABSTRACT_ZH_TITLE) {
-      zhChildren.push(createCenteredText(node.text, FONT_FAMILY.chineseHei, FONT_SIZE.san, config.westernFont, true))
-    } else {
-      zhChildren.push(createBodyParagraph(node.text, config))
+  // ── 第 1 节：中文摘要（有内容时才生成） ─────────────
+  const hasZhAbstract = ast.frontMatter.abstractZh.length > 0
+  if (hasZhAbstract) {
+    const zhChildren: Paragraph[] = []
+    for (const node of ast.frontMatter.abstractZh) {
+      if (node.type === NodeType.ABSTRACT_ZH_TITLE) {
+        zhChildren.push(createCenteredText(node.text, FONT_FAMILY.chineseHei, FONT_SIZE.san, config.westernFont, true))
+      } else {
+        zhChildren.push(createBodyParagraph(node.text, config))
+      }
     }
+    sections.push({
+      properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
+      children: zhChildren,
+    })
   }
-  sections.push({
-    properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
-    children: zhChildren,
-  })
 
-  // ── 第 3 节：英文摘要 ───────────────────────────────
-  const enChildren: Paragraph[] = []
-  for (const node of ast.frontMatter.abstractEn) {
-    if (node.type === NodeType.ABSTRACT_EN_TITLE) {
-      enChildren.push(createCenteredText(node.text, FONT_FAMILY.western, FONT_SIZE.san, config.westernFont, true))
-    } else {
-      enChildren.push(
-        new Paragraph({
-          children: [
-            new TextRun({
-              text: node.text,
-              font: { ascii: config.westernFont, hAnsi: config.westernFont },
-              size: FONT_SIZE.xiaoSi,
-            }),
-          ],
-        }),
-      )
+  // ── 第 3 节：英文摘要（有内容时才生成） ─────────────
+  const hasEnAbstract = ast.frontMatter.abstractEn.length > 0
+  if (hasEnAbstract) {
+    const enChildren: Paragraph[] = []
+    for (const node of ast.frontMatter.abstractEn) {
+      if (node.type === NodeType.ABSTRACT_EN_TITLE) {
+        enChildren.push(createCenteredText(node.text, FONT_FAMILY.western, FONT_SIZE.san, config.westernFont, true))
+      } else {
+        enChildren.push(
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: node.text,
+                font: { ascii: config.westernFont, hAnsi: config.westernFont },
+                size: FONT_SIZE.xiaoSi,
+              }),
+            ],
+          }),
+        )
+      }
     }
+    sections.push({
+      properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
+      children: enChildren,
+    })
   }
-  sections.push({
-    properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
-    children: enChildren,
-  })
 
-  // ── 第 4 节：目录 ───────────────────────────────────
+  // ── 第 3 节：目录 ───────────────────────────────────
   const headings = ast.body.filter(
     (n) =>
       n.type === NodeType.HEADING_1 ||
@@ -88,11 +85,11 @@ export function buildDocument(options: BuildOptions): Document {
     properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
     children: [
       createCenteredText('目  录', FONT_FAMILY.chineseHei, FONT_SIZE.san, config.westernFont, true),
-      ...buildTOC(headings, config),
+      ...buildTOC(headings, config, hasZhAbstract, hasEnAbstract),
     ],
   })
 
-  // ── 第 5 节：正文 ───────────────────────────────────
+  // ── 第 4 节：正文 ───────────────────────────────────
   const bodyChildren: Paragraph[] = []
   for (const node of ast.body) {
     switch (node.type) {
@@ -132,7 +129,7 @@ export function buildDocument(options: BuildOptions): Document {
     children: bodyChildren,
   })
 
-  // ── 第 6 节：参考文献 ───────────────────────────────
+  // ── 第 5 节：参考文献 ───────────────────────────────
   if (ast.backMatter.references.length > 0) {
     const refList = references ?? []
     sections.push({
@@ -144,7 +141,7 @@ export function buildDocument(options: BuildOptions): Document {
     })
   }
 
-  // ── 第 7 节：致谢 ───────────────────────────────────
+  // ── 第 6 节：致谢 ───────────────────────────────────
   if (ast.backMatter.acknowledgement.length > 0) {
     const ackChildren: Paragraph[] = []
     for (const node of ast.backMatter.acknowledgement) {
@@ -162,7 +159,7 @@ export function buildDocument(options: BuildOptions): Document {
     })
   }
 
-  // ── 第 8 节：附录 ───────────────────────────────────
+  // ── 第 7 节：附录 ───────────────────────────────────
   if (ast.backMatter.appendices.length > 0) {
     const appChildren: Paragraph[] = []
     for (const node of ast.backMatter.appendices) {
@@ -175,17 +172,6 @@ export function buildDocument(options: BuildOptions): Document {
     sections.push({
       properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
       children: appChildren,
-    })
-  }
-
-  // ── 第 9 节：封底 ───────────────────────────────────
-  if (backCoverText) {
-    sections.push({
-      properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
-      children: [
-        new Paragraph({ spacing: { before: 600 } }),
-        createCenteredText(backCoverText, FONT_FAMILY.chineseSong, FONT_SIZE.xiaoSi, config.westernFont),
-      ],
     })
   }
 

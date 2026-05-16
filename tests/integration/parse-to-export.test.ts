@@ -224,8 +224,12 @@ describe('端到端：解析→导出', () => {
     const sciResult = parseThesis(FULL_PAPER, {
       discipline: Discipline.SCIENCE_ENGINEERING,
     })
-    // 理工模式下社科标题规则不匹配，大部分标题变为 PARAGRAPH
+    // 社科类标题（一、二、三、四、五）在理工模式下不匹配，变为 PARAGRAPH
     const sciH1s = sciResult.body.filter((n) => n.type === NodeType.HEADING_1)
-    expect(sciH1s.length).toBe(0) // 无理工一级标题格式
+    // 范文中的 "1. XX" / "2. XX" 在理工模式下识别为一级标题（标准：1. XXXX）
+    expect(sciH1s.length).toBe(4)
+    // 社科二级标题（一）等在理工模式下不应匹配
+    const sciH2s = sciResult.body.filter((n) => n.type === NodeType.HEADING_2)
+    expect(sciH2s.length).toBe(0)
   })
 })

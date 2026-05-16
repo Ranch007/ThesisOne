@@ -58,13 +58,16 @@ export const INDENT_2_CHARS = 480
 export const SOCIAL_SCIENCE_RULES = {
   heading1: /^[一二三四五六七八九十]+、/,
   heading2: /^（[一二三四五六七八九十]+）/, // eslint-disable-line
-  heading3: /^\d+\./,
+  /** 仅匹配单级数字编号（"1."），不匹配多级（"1.1"、"1.1.1"） */
+  heading3: /^\d+\.(?![.\d])/,
 } as const
 
 /** 理工类标题正则 */
 export const SCIENCE_ENGINEERING_RULES = {
-  heading1: /^\d+\s/,
-  heading2: /^\d+\.\d+/,
+  /** "1 XXXX" 或 "1. XXXX" */
+  heading1: /^\d+(?:\.\s|\s)/,
+  /** 仅匹配两级编号（"1.1"），不匹配三级（"1.1.1"） */
+  heading2: /^\d+\.\d+(?![.\d])/,
   heading3: /^\d+\.\d+\.\d+/,
 } as const
 
