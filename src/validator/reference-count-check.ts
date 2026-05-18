@@ -24,7 +24,7 @@ export function checkReferenceCount(items: ReferenceItem[]): FormatIssue[] {
   }
 
   const enCount = items.filter((r) =>
-    /^[A-Za-z]/.test(r.authors[0] ?? ''),
+    /^[A-Za-z]/.test(r.authors?.[0] ?? ''),
   ).length
   if (items.length > 0 && enCount < 3) {
     issues.push({

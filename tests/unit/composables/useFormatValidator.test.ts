@@ -73,7 +73,7 @@ describe('useFormatValidator', () => {
         {
           id: '1',
           type: NodeType.PARAGRAPH,
-          text: '一段正文',
+          text: '一段正文[1][2][3][4][5][6][7][8][9][10][11][12][13][14][15]',
           lineNumber: 1,
         },
       ],
@@ -83,6 +83,15 @@ describe('useFormatValidator', () => {
         appendices: [],
       },
     })
+
+    // 添加足够参考文献以通过数量合规检测（≥15 篇，≥3 篇英文）
+    const rs = useReferencesStore()
+    for (let i = 1; i <= 12; i++) {
+      rs.items.push({ id: `cn${i}`, index: i, authors: ['张三'], title: `文献${i}`, year: 2020 } as any)
+    }
+    for (let i = 13; i <= 15; i++) {
+      rs.items.push({ id: `en${i}`, index: i, authors: ['Smith'], title: `Paper${i}`, year: 2020 } as any)
+    }
 
     const { runValidation } = useFormatValidator()
     const issues = runValidation()
