@@ -76,8 +76,11 @@ function toggleIssues() {
 
   <div v-else class="app-layout">
     <header class="app-header">
-      <h1 class="app-title">本科毕业论文在线排版编辑工具</h1>
-      <span class="app-version" :title="buildTime">v{{ gitCommit }}</span>
+      <div class="app-brand">
+        <img src="/ThesisOne.svg" alt="Logo" class="app-logo" />
+        <h1 class="app-title">本科毕业论文在线排版编辑工具</h1>
+        <span class="app-version" :title="buildTime">V.{{ gitCommit }}</span>
+      </div>
       <Toolbar @open-settings="openSettings" @toggle-issues="toggleIssues" />
     </header>
 
@@ -118,6 +121,8 @@ function toggleIssues() {
 .app-error-boundary button { padding: 8px 24px; border: 1px solid #1a73e8; border-radius: 4px; background: #1a73e8; color: #fff; cursor: pointer; font-size: 14px; }
 .app-layout { display: flex; flex-direction: column; height: 100vh; }
 .app-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 48px; border-bottom: 1px solid #e0e0e0; background: #fff; flex-shrink: 0; }
+.app-brand { display: flex; align-items: center; gap: 6px; }
+.app-logo { height: 48px; width: 48px; flex-shrink: 0; }
 .app-title { font-size: 18px; font-weight: 600; margin: 0; white-space: nowrap; }
 .app-version { font-size: 11px; color: #999; font-family: monospace; flex-shrink: 0; }
 .app-main { display: flex; flex: 1; overflow: hidden; }
