@@ -29,27 +29,15 @@ const SAMPLE = `基于深度学习的图像识别研究
 
 describe('buildDocument - 基本结构', () => {
   const ast = parseThesis(SAMPLE, { discipline: Discipline.SOCIAL_SCIENCE })
-  const cover = {
-    university: '江汉大学',
-    college: '计算机学院',
-    major: '计算机科学与技术',
-    thesisTitle: '基于深度学习的图像识别研究',
-    studentName: '张三',
-    studentId: '2021001',
-    advisor: '李四教授',
-    submissionDate: '2026-05-07',
-  }
 
   it('应成功构建Document对象', () => {
-    const doc = buildDocument({ ast, config: DEFAULT_CONFIG, cover })
+    const doc = buildDocument({ ast, config: DEFAULT_CONFIG })
     expect(doc).toBeDefined()
-    // docx 的 Document 继承自 File，constructor.name 可能为 File
     expect(doc).toBeInstanceOf(Object)
   })
 
   it('应包含多个section', () => {
-    const doc = buildDocument({ ast, config: DEFAULT_CONFIG, cover })
-    // section 可通过内部属性验证
+    const doc = buildDocument({ ast, config: DEFAULT_CONFIG })
     expect(doc).toBeDefined()
   })
 })
@@ -57,7 +45,7 @@ describe('buildDocument - 基本结构', () => {
 describe('GB/T 7714 - 所有类型', () => {
   it('期刊', () => {
     const r = formatGB7714({
-      id: '1', index: 1, type: ReferenceType.JOURNAL,
+      id: '1', index: 1, rawText: '', type:ReferenceType.JOURNAL,
       authors: ['张三'], title: '测试', journal: '学报',
       year: 2023, volume: '10', pages: '1-10',
     })
@@ -66,7 +54,7 @@ describe('GB/T 7714 - 所有类型', () => {
 
   it('会议', () => {
     const r = formatGB7714({
-      id: '1', index: 1, type: ReferenceType.CONFERENCE,
+      id: '1', index: 1, rawText: '', type:ReferenceType.CONFERENCE,
       authors: ['张三'], title: '测试', address: '北京',
       year: 2023, pages: '100-110',
     })
@@ -75,7 +63,7 @@ describe('GB/T 7714 - 所有类型', () => {
 
   it('学位论文', () => {
     const r = formatGB7714({
-      id: '1', index: 1, type: ReferenceType.THESIS,
+      id: '1', index: 1, rawText: '', type:ReferenceType.THESIS,
       authors: ['张三'], title: '测试',
       address: '北京', journal: '清华大学', year: 2023,
     })
@@ -84,7 +72,7 @@ describe('GB/T 7714 - 所有类型', () => {
 
   it('专利', () => {
     const r = formatGB7714({
-      id: '1', index: 1, type: ReferenceType.PATENT,
+      id: '1', index: 1, rawText: '', type:ReferenceType.PATENT,
       authors: ['张三'], title: '测试', address: '北京', year: 2023,
     })
     expect(r).toContain('[P]')
@@ -92,7 +80,7 @@ describe('GB/T 7714 - 所有类型', () => {
 
   it('报纸', () => {
     const r = formatGB7714({
-      id: '1', index: 1, type: ReferenceType.NEWSPAPER,
+      id: '1', index: 1, rawText: '', type:ReferenceType.NEWSPAPER,
       authors: ['张三'], title: '测试', journal: '人民日报', year: 2023,
     })
     expect(r).toContain('[N]')
@@ -100,7 +88,7 @@ describe('GB/T 7714 - 所有类型', () => {
 
   it('电子文献', () => {
     const r = formatGB7714({
-      id: '1', index: 1, type: ReferenceType.ONLINE,
+      id: '1', index: 1, rawText: '', type:ReferenceType.ONLINE,
       authors: ['张三'], title: '测试',
       url: 'https://example.com', year: 2023, accessDate: '2023-01-01',
     })

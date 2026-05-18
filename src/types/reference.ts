@@ -13,10 +13,12 @@ export enum ReferenceType {
 export interface ReferenceItem {
   id: string
   index: number
-  type: ReferenceType
-  authors: string[]
-  title: string
-  year: number
+  /** 用户粘贴的完整引用文本（如 "张三, 李四. 深度学习综述[J]. 计算机学报, 2020, 43(1): 1-20."） */
+  rawText: string
+  type?: ReferenceType
+  authors?: string[]
+  title?: string
+  year?: number
   journal?: string
   volume?: string
   issue?: string

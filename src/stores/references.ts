@@ -11,16 +11,17 @@ export const useReferencesStore = defineStore('references', () => {
   const byType = computed(() => {
     const grouped: Record<string, ReferenceItem[]> = {}
     for (const item of items.value) {
-      (grouped[item.type] ??= []).push(item)
+      const t = item.type ?? 'OTHER'
+      ;(grouped[t] ??= []).push(item)
     }
     return grouped
   })
 
-  function addRef(item: Omit<ReferenceItem, 'id' | 'index'>) {
+  function addRef(rawText: string) {
     items.value.push({
-      ...item,
       id: uid(),
       index: items.value.length + 1,
+      rawText: rawText.trim(),
     })
   }
 

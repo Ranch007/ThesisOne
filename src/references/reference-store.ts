@@ -26,11 +26,11 @@ export class ReferenceStore {
     return this.items.length
   }
 
-  add(item: Omit<ReferenceItem, 'id' | 'index'>): ReferenceItem {
+  add(rawText: string): ReferenceItem {
     const newItem: ReferenceItem = {
-      ...item,
       id: uid(),
       index: this.items.length + 1,
+      rawText: rawText.trim(),
     }
     this.items.push(newItem)
     return newItem

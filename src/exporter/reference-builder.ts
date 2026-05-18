@@ -14,19 +14,11 @@ export function buildReferenceList(
 }
 
 function createRefParagraph(ref: ReferenceItem, config: DocumentConfig): Paragraph {
+  const text = ref.rawText ?? formatGB7714(ref as Parameters<typeof formatGB7714>[0])
   return new Paragraph({
     children: [
       new TextRun({
-        text: `[${ref.index}] `,
-        font: {
-          eastAsia: FONT_FAMILY.chineseSong,
-          ascii: config.westernFont,
-          hAnsi: config.westernFont,
-        },
-        size: config.refSection.itemSize,
-      }),
-      new TextRun({
-        text: formatGB7714(ref),
+        text: `[${ref.index}] ${text}`,
         font: {
           eastAsia: FONT_FAMILY.chineseSong,
           ascii: config.westernFont,

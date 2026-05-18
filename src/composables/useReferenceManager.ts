@@ -12,8 +12,8 @@ export function useReferenceManager() {
   const refStore = useReferencesStore()
   const { items, count, byType } = storeToRefs(refStore)
 
-  function add(item: Omit<ReferenceItem, 'id' | 'index'>) {
-    refStore.addRef(item)
+  function add(rawText: string) {
+    refStore.addRef(rawText)
   }
 
   function remove(id: string) {

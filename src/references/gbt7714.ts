@@ -12,7 +12,7 @@ function formatAuthors(authors: string[]): string {
 
 /** 按 GB/T 7714 格式输出参考文献条目 */
 export function formatGB7714(ref: ReferenceItem): string {
-  const authors = formatAuthors(ref.authors)
+  const authors = formatAuthors(ref.authors ?? [])
   const base = `${authors}. ${ref.title}`
   const doi = ref.doi ? ` DOI: ${ref.doi}.` : ''
 
@@ -53,5 +53,8 @@ export function formatGB7714(ref: ReferenceItem): string {
 export function formatReferenceList(items: ReferenceItem[]): string[] {
   return items
     .sort((a, b) => a.index - b.index)
-    .map((ref) => `[${ref.index}] ${formatGB7714(ref)}`)
+    .map((ref) => {
+      if (ref.rawText) return `[${ref.index}] ${ref.rawText}`
+      return `[${ref.index}] ${formatGB7714(ref as Required<Pick<ReferenceItem, 'type' | 'authors' | 'title' | 'year'>> & ReferenceItem)}`
+    })
 }

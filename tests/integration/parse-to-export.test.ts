@@ -180,41 +180,22 @@ describe('端到端：解析→导出', () => {
   })
 
   it('应成功构建DOCX Document', () => {
-    const cover = {
-      university: '江汉大学',
-      college: '计算机科学与技术学院',
-      major: '计算机科学与技术',
-      thesisTitle: ast.frontMatter.title?.text ?? '',
-      studentName: '张三',
-      studentId: '20210001',
-      advisor: '李四教授',
-      submissionDate: '2026-05-07',
-    }
-
     const refs = [
       {
-        id: '1', index: 1, type: ReferenceType.JOURNAL,
-        authors: ['张三', '李四'], title: '深度学习综述',
-        journal: '计算机学报', year: 2020, volume: '43', issue: '1', pages: '1-20',
+        id: '1', index: 1, rawText: '张三, 李四. 深度学习综述[J]. 计算机学报, 2020, 43(1): 1-20.',
       },
       {
-        id: '2', index: 2, type: ReferenceType.JOURNAL,
-        authors: ['王五', '赵六'], title: '图像识别技术进展',
-        journal: '软件学报', year: 2021, volume: '32', issue: '3', pages: '500-520',
+        id: '2', index: 2, rawText: '王五, 赵六. 图像识别技术进展[J]. 软件学报, 2021, 32(3): 500-520.',
       },
       {
-        id: '3', index: 3, type: ReferenceType.BOOK,
-        authors: ['陈七'], title: '卷积神经网络原理与实践',
-        publisher: '科学出版社', address: '北京', year: 2019,
+        id: '3', index: 3, rawText: '陈七. 卷积神经网络原理与实践[M]. 北京: 科学出版社, 2019.',
       },
     ]
 
     const doc = buildDocument({
       ast,
       config: DEFAULT_CONFIG,
-      cover,
       references: refs,
-      backCoverText: '本论文为作者独立完成，不存在任何抄袭、剽窃行为。',
     })
 
     expect(doc).toBeDefined()

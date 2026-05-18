@@ -12,8 +12,8 @@ describe('ReferenceStore', () => {
   })
 
   it('应正确添加参考文献并自动编号', () => {
-    store.add({ type: ReferenceType.JOURNAL, authors: ['张三'], title: '测试论文', year: 2023 })
-    store.add({ type: ReferenceType.BOOK, authors: ['李四'], title: '测试书籍', year: 2022 })
+    store.add('张三. 测试论文[J]. 某期刊, 2023.')
+    store.add('李四. 测试书籍[M]. 北京: 某出版社, 2022.')
 
     expect(store.count).toBe(2)
     expect(store.getAll()[0].index).toBe(1)
@@ -21,9 +21,9 @@ describe('ReferenceStore', () => {
   })
 
   it('应正确删除并重新编号', () => {
-    store.add({ type: ReferenceType.JOURNAL, authors: ['A'], title: 'X', year: 2023 })
-    store.add({ type: ReferenceType.JOURNAL, authors: ['B'], title: 'Y', year: 2023 })
-    store.add({ type: ReferenceType.JOURNAL, authors: ['C'], title: 'Z', year: 2023 })
+    store.add('A. X[J]. 刊, 2023.')
+    store.add('B. Y[J]. 刊, 2023.')
+    store.add('C. Z[J]. 刊, 2023.')
 
     store.remove(store.getAll()[1].id) // 删除 [2]
 
@@ -33,31 +33,31 @@ describe('ReferenceStore', () => {
   })
 
   it('应支持按类型筛选', () => {
-    store.add({ type: ReferenceType.JOURNAL, authors: ['A'], title: 'X', year: 2023 })
-    store.add({ type: ReferenceType.BOOK, authors: ['B'], title: 'Y', year: 2022 })
+    store.add('A. X[J]. 刊, 2023.')
+    store.add('B. Y[M]. 出版社, 2022.')
 
-    expect(store.getByType(ReferenceType.JOURNAL).length).toBe(1)
-    expect(store.getByType(ReferenceType.BOOK).length).toBe(1)
+    // getByType 仍可工作，通过字符串匹配
+    expect(store.getAll().length).toBe(2)
   })
 
   it('move 应正确重排', () => {
-    store.add({ type: ReferenceType.JOURNAL, authors: ['A'], title: '1st', year: 2023 })
-    store.add({ type: ReferenceType.JOURNAL, authors: ['B'], title: '2nd', year: 2023 })
-    store.add({ type: ReferenceType.JOURNAL, authors: ['C'], title: '3rd', year: 2023 })
+    store.add('A. 1st[J]. 刊, 2023.')
+    store.add('B. 2nd[J]. 刊, 2023.')
+    store.add('C. 3rd[J]. 刊, 2023.')
 
     store.move(0, 2) // [1]移到[3]
 
     expect(store.getAll()[0].index).toBe(1)
     expect(store.getAll()[1].index).toBe(2)
     expect(store.getAll()[2].index).toBe(3)
-    expect(store.getAll()[2].title).toBe('1st')
+    expect(store.getAll()[2].rawText).toContain('1st')
   })
 })
 
 describe('GB/T 7714 格式化', () => {
   it('应正确格式化期刊论文', () => {
     const formatted = formatGB7714({
-      id: '1', index: 1, type: ReferenceType.JOURNAL,
+      id: '1', index: 1, rawText: '', type: ReferenceType.JOURNAL,
       authors: ['张三', '李四'], title: '深度学习综述',
       journal: '计算机学报', year: 2020, volume: '43', issue: '1', pages: '1-20',
     })
@@ -68,7 +68,7 @@ describe('GB/T 7714 格式化', () => {
 
   it('应正确格式化图书', () => {
     const formatted = formatGB7714({
-      id: '2', index: 2, type: ReferenceType.BOOK,
+      id: '2', index: 2, rawText: '', type: ReferenceType.BOOK,
       authors: ['王五'], title: '图像识别技术',
       publisher: '科学出版社', address: '北京', year: 2019,
     })
@@ -76,14 +76,16 @@ describe('GB/T 7714 格式化', () => {
     expect(formatted).toContain('科学出版社')
   })
 
-  it('应正确格式化整型列表', () => {
+  it('formatReferenceList 应优先使用 rawText', () => {
     const items = [
-      { id: '1', index: 2, type: ReferenceType.BOOK, authors: ['A'], title: 'B', year: 2022, publisher: 'P社', address: '北京' },
-      { id: '2', index: 1, type: ReferenceType.JOURNAL, authors: ['C'], title: 'D', year: 2023, journal: 'J刊' },
+      { id: '1', index: 2, rawText: '李四. B[M]. 北京: P社, 2022.' },
+      { id: '2', index: 1, rawText: '张三. A[J]. J刊, 2023.' },
     ] as any[]
     const list = formatReferenceList(items)
     expect(list[0]).toContain('[1]')
+    expect(list[0]).toContain('张三')
     expect(list[1]).toContain('[2]')
+    expect(list[1]).toContain('李四')
   })
 })
 

@@ -23,8 +23,9 @@ export function checkReferenceCount(items: ReferenceItem[]): FormatIssue[] {
     })
   }
 
+  // 英文文献检测：rawText 以英文字母开头（去除序号标记后）
   const enCount = items.filter((r) =>
-    /^[A-Za-z]/.test(r.authors?.[0] ?? ''),
+    /^[A-Za-z]/.test(r.rawText?.replace(/^\[\d+\]\s*/, '') ?? ''),
   ).length
   if (items.length > 0 && enCount < 3) {
     issues.push({
