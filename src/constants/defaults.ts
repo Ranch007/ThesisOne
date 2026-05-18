@@ -3,9 +3,7 @@ import { Discipline } from '@/types/ast'
 import { DEFAULT_MARGINS, FONT_FAMILY, FONT_SIZE, LINE_SPACING_TWIP } from './jhu'
 
 /**
- * 江汉大学本科毕业论文排版默认配置
- *
- * 每当用户点击"恢复默认值"时，即恢复为此对象的值。
+ * 参照江汉大学本科毕业论文规范
  */
 export const DEFAULT_CONFIG: DocumentConfig = {
   discipline: Discipline.SOCIAL_SCIENCE,

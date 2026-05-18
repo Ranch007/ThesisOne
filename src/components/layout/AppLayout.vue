@@ -48,8 +48,8 @@ watch(
   () => docStore.ast?.frontMatter.title?.text,
   (title) => {
     document.title = title
-      ? `${title} — 江大毕业论文排版工具`
-      : '江大毕业论文排版工具'
+      ? `${title} — 本科毕业论文在线排版编辑工具`
+      : '本科毕业论文在线排版编辑工具'
   },
 )
 
@@ -76,7 +76,7 @@ function toggleIssues() {
 
   <div v-else class="app-layout">
     <header class="app-header">
-      <h1 class="app-title">江大毕业论文排版工具</h1>
+      <h1 class="app-title">本科毕业论文在线排版编辑工具</h1>
       <span class="app-version" :title="buildTime">v{{ gitCommit }}</span>
       <Toolbar @open-settings="openSettings" @toggle-issues="toggleIssues" />
     </header>

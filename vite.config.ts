@@ -28,8 +28,8 @@ export default defineConfig(({ mode }) => ({
           VitePWA({
             registerType: "autoUpdate",
             manifest: {
-              name: "江大毕业论文排版工具",
-              short_name: "论文排版",
+              name: "本科毕业论文在线排版编辑工具",
+              short_name: "本科论文排版",
               theme_color: "#ffffff",
               display: "standalone",
               icons: [
