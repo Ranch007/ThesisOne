@@ -53,12 +53,14 @@ export default defineConfig(({ mode }) => ({
   build: {
     target: "es2020",
     rollupOptions: {
-      output: {
-        manualChunks(id: string) {
-          if (id.includes("node_modules/docx")) return "vendor-docx";
-          if (id.includes("node_modules/mammoth")) return "vendor-mammoth";
-        },
-      },
+      output: mode !== "single"
+        ? {
+            manualChunks(id: string) {
+              if (id.includes("node_modules/docx")) return "vendor-docx";
+              if (id.includes("node_modules/mammoth")) return "vendor-mammoth";
+            },
+          }
+        : {},
     },
   },
 }));
