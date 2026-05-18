@@ -5,18 +5,21 @@ const emit = defineEmits<{
   resize: [pct: number]
 }>()
 
+const handleRef = ref<HTMLElement>()
 const dragging = ref(false)
 
 function onMouseDown(e: MouseEvent) {
   dragging.value = true
+  document.body.style.userSelect = 'none'
+  document.body.style.cursor = 'col-resize'
   document.addEventListener('mousemove', onMouseMove)
   document.addEventListener('mouseup', onMouseUp)
   e.preventDefault()
 }
 
 function onMouseMove(e: MouseEvent) {
-  if (!dragging.value) return
-  const container = (e.target as HTMLElement).parentElement
+  if (!dragging.value || !handleRef.value) return
+  const container = handleRef.value.parentElement
   if (!container) return
   const rect = container.getBoundingClientRect()
   const pct = ((e.clientX - rect.left) / rect.width) * 100
@@ -25,13 +28,15 @@ function onMouseMove(e: MouseEvent) {
 
 function onMouseUp() {
   dragging.value = false
+  document.body.style.userSelect = ''
+  document.body.style.cursor = ''
   document.removeEventListener('mousemove', onMouseMove)
   document.removeEventListener('mouseup', onMouseUp)
 }
 </script>
 
 <template>
-  <div class="resize-handle" :class="{ dragging }" @mousedown="onMouseDown">
+  <div ref="handleRef" class="resize-handle" :class="{ dragging }" @mousedown="onMouseDown">
     <div class="resize-bar" />
   </div>
 </template>
