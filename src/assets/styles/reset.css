@@ -17,6 +17,16 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* 隐藏所有滚动条 */
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
 button {
   font-family: inherit;
 }
