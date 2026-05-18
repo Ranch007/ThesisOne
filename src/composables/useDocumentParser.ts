@@ -46,25 +46,26 @@ export function useDocumentParser() {
       })
       if (version !== parseVersion) return
 
-      // 将参考文献表单数据同步到 AST（供预览和导出使用）
-      if (refStore.items.length > 0) {
-        const formatted = formatReferenceList(refStore.items)
+      // 从正文中提取引用序号，仅输出被实际引用的参考文献
+      const citedNums = [...combinedSections.value.body.matchAll(/\[(\d+)\]/g)]
+        .map((m) => parseInt(m[1]))
+      const citedSet = new Set(citedNums)
+      const citedRefs = refStore.items.filter((r) => citedSet.has(r.index))
+
+      if (citedRefs.length > 0) {
+        const formatted = formatReferenceList(citedRefs)
         ast.backMatter.references = formatted.map((text) => ({
           id: uid(),
           type: NodeType.REF_ITEM,
           text,
           lineNumber: 0,
         }))
-        // 正文有引用标记时才显示参考文献标题
-        const hasCitation = /\[\d+\]/.test(combinedSections.value.body)
-        if (hasCitation) {
-          ast.backMatter.references.unshift({
-            id: uid(),
-            type: NodeType.REF_TITLE,
-            text: '参考文献',
-            lineNumber: 0,
-          })
-        }
+        ast.backMatter.references.unshift({
+          id: uid(),
+          type: NodeType.REF_TITLE,
+          text: '参考文献',
+          lineNumber: 0,
+        })
       }
 
       if (version !== parseVersion) return
