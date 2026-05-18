@@ -39,6 +39,25 @@ const tocItems = computed(() => {
   )
 })
 
+// ── 目录附加条目（致谢、参考文献、附录） ──
+const tocExtras = computed(() => {
+  const extras: { text: string; page: number }[] = []
+  const bodyPageCount = bodyPages.value.length
+  let offset = 1
+  if (props.ast.backMatter.references.length > 0) {
+    extras.push({ text: '参考文献', page: bodyPageCount + offset })
+    offset++
+  }
+  if (props.ast.backMatter.acknowledgement.length > 0) {
+    extras.push({ text: '致谢', page: bodyPageCount + offset })
+    offset++
+  }
+  if (props.ast.backMatter.appendices.length > 0) {
+    extras.push({ text: '附录', page: bodyPageCount + offset })
+  }
+  return extras
+})
+
 const hasTocTitle = computed(() => props.ast.frontMatter.toc.length > 0)
 
 // ── 目录页码映射：每个标题节点 → 所在正文页码（从 1 起编） ──
@@ -142,6 +161,15 @@ function estimateLines(node: DocumentNode): number {
             <span class="toc-text">{{ node.text }}</span>
             <span class="toc-leader" />
             <span class="toc-page">{{ tocPageMap.get(node.id) ?? '—' }}</span>
+          </p>
+          <p
+            v-for="(extra, ei) in tocExtras"
+            :key="'toc-extra-' + ei"
+            class="toc-item"
+          >
+            <span class="toc-text">{{ extra.text }}</span>
+            <span class="toc-leader" />
+            <span class="toc-page">{{ extra.page }}</span>
           </p>
         </template>
         <p v-else class="toc-empty">正文中未检测到标题，无法生成目录</p>

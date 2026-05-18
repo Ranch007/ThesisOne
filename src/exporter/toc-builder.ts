@@ -8,6 +8,7 @@ export function buildTOC(
   _config: DocumentConfig,
   hasZhAbstract: boolean,
   hasEnAbstract: boolean,
+  backTitles: string[] = [],
 ): Paragraph[] {
   const paragraphs: Paragraph[] = []
 
@@ -22,6 +23,10 @@ export function buildTOC(
     const level = h.level ?? 1
     const indent = (level - 1) * 2
     paragraphs.push(createTOCEntry(h.text, '', level, indent))
+  }
+
+  for (const title of backTitles) {
+    paragraphs.push(createTOCEntry(title, '', 1))
   }
 
   return paragraphs

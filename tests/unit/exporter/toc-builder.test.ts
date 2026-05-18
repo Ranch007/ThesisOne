@@ -36,4 +36,9 @@ describe('buildTOC', () => {
     const result = buildTOC([], DEFAULT_CONFIG, true, false)
     expect(result.length).toBe(1) // 仅中文摘要
   })
+
+  it('should include back section titles', () => {
+    const result = buildTOC([], DEFAULT_CONFIG, false, false, ['参考文献', '致谢', '附录'])
+    expect(result.length).toBe(3)
+  })
 })

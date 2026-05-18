@@ -81,11 +81,17 @@ export function buildDocument(options: BuildOptions): Document {
       n.type === NodeType.HEADING_2 ||
       n.type === NodeType.HEADING_3,
   )
+  // 收集后置章节标题用于目录
+  const backTitles: string[] = []
+  if (ast.backMatter.references.length > 0) backTitles.push('参考文献')
+  if (ast.backMatter.acknowledgement.length > 0) backTitles.push('致谢')
+  if (ast.backMatter.appendices.length > 0) backTitles.push('附录')
+
   sections.push({
     properties: { type: SectionType.NEXT_PAGE, page: { margin: margins } },
     children: [
       createCenteredText('目  录', FONT_FAMILY.chineseHei, FONT_SIZE.san, config.westernFont, true),
-      ...buildTOC(headings, config, hasZhAbstract, hasEnAbstract),
+      ...buildTOC(headings, config, hasZhAbstract, hasEnAbstract, backTitles),
     ],
   })
 
