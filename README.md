@@ -38,7 +38,7 @@ Vue 3 + TypeScript + Pinia + Vite + docx + mammoth + Vitest
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sdfmom"><img src="https://avatars.githubusercontent.com/u/266272543?v=4?s=100" width="100px;" alt="sdfmom"/><br /><sub><b>sdfmom</b></sub></a><br /><a href="#maintenance-sdfmom" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sdfmom"><img src="https://avatars.githubusercontent.com/u/266272543?v=4?s=100" width="100px;" alt="sdfmom"/><br /><sub><b>sdfmom</b></sub></a><br /><a href="#maintenance-sdfmom" title="Maintenance">🚧</a> <a href="https://github.com/Ranch007/ThesisOne/commits?author=sdfmom" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
