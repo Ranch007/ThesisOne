@@ -30,6 +30,13 @@ npm test             # 运行测试（90 项）
 
 Vue 3 + TypeScript + Pinia + Vite + docx + mammoth + Vitest
 
-## 许可证
+## Contributors
 
-MIT
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
