@@ -3,8 +3,23 @@
   "projectOwner": "Ranch007",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "imageSize": 100,
   "commit": false,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "sdfmom",
+      "name": "sdfmom",
+      "avatar_url": "https://avatars.githubusercontent.com/u/266272543?v=4",
+      "profile": "https://github.com/sdfmom",
+      "contributions": [
+        "maintenance"
+      ]
+    }
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7
 }
